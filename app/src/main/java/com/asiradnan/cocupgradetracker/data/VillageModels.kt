@@ -129,6 +129,32 @@ data class VillageData(
         return freeThBuilders + freeThLab + freeBbBuilders + freeBbLab
     }
 
+    fun getFreeDurationSeconds(nowEpochSeconds: Long): Long? {
+        val baseEpoch = effectiveBaseEpochSeconds
+        val fallbackIdleEpoch = if (baseEpoch > 0L) baseEpoch else pastedAtEpochSeconds
+        val freedEpochs = mutableListOf<Long>()
+
+        fun collectPoolFreeEpochs(slotCount: Int, upgrades: List<UpgradeItem>) {
+            val regular = upgrades.filter { !it.isGoblinHelper }
+            for (i in 0 until slotCount) {
+                val upg = regular.getOrNull(i)
+                if (upg == null) {
+                    if (fallbackIdleEpoch > 0L) freedEpochs.add(fallbackIdleEpoch)
+                } else if (upg.remainingSeconds(baseEpoch, nowEpochSeconds) <= 0L) {
+                    freedEpochs.add(upg.finishEpochSeconds(baseEpoch))
+                }
+            }
+        }
+
+        collectPoolFreeEpochs(totalHomeBuilders, builderUpgrades)
+        collectPoolFreeEpochs(1, labUpgrades)
+        collectPoolFreeEpochs(totalBuilderBaseBuilders, builderBaseUpgrades)
+        collectPoolFreeEpochs(1, starLabUpgrades)
+
+        val earliestFreed = freedEpochs.minOrNull() ?: return null
+        return max(0L, nowEpochSeconds - earliestFreed)
+    }
+
     fun getFreeSlotDescriptions(nowEpochSeconds: Long): List<String> {
         val baseEpoch = effectiveBaseEpochSeconds
 

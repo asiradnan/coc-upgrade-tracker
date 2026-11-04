@@ -1,6 +1,7 @@
 package com.asiradnan.cocupgradetracker.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,10 +15,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,12 +34,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -430,4 +437,316 @@ fun ClashCrestBadge(
         }
     }
 }
+
+@Composable
+fun ClashTownHallIcon(
+    townHallLevel: Int,
+    modifier: Modifier = Modifier,
+    isUninitialized: Boolean = false
+) {
+    val roofColor = when {
+        isUninitialized -> Color(0xFF7B7366)
+        townHallLevel <= 8 -> Color(0xFFE07A1F)   // Classic Orange-Gold roof (TH1-8)
+        townHallLevel == 9 -> Color(0xFF3E434C)   // Dark Fortress slate (TH9)
+        townHallLevel == 10 -> Color(0xFFC92E23)  // Magma Red (TH10)
+        townHallLevel == 11 -> Color(0xFFD99B26)  // Ivory & Royal Gold (TH11)
+        townHallLevel in 12..13 -> Color(0xFF287CD4) // Electric / Frost Blue (TH12-13)
+        townHallLevel == 14 -> Color(0xFF2E9E49)  // Jungle Emerald (TH14)
+        townHallLevel == 15 -> Color(0xFF7E38B8)  // Arcane Purple (TH15)
+        townHallLevel == 16 -> Color(0xFFD44328)  // Solar Crimson & Gold (TH16)
+        else -> Color(0xFF35457A)                 // Deep Indigo & Gold (TH17+)
+    }
+
+    val wallColor = when {
+        isUninitialized -> Color(0xFFC9C0B1)
+        townHallLevel == 9 -> Color(0xFF6B707B)
+        townHallLevel == 11 -> Color(0xFFF2ECE1)
+        else -> Color(0xFFDED3BE)
+    }
+
+    Box(
+        modifier = modifier
+            .size(46.dp)
+            .clip(MaterialTheme.shapes.small)
+            .background(Color(0xFF3A342C))
+            .border(1.5.dp, Color(0xFF594F41), MaterialTheme.shapes.small),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.size(40.dp)) {
+            val w = size.width
+            val h = size.height
+
+            // Building stone body
+            drawRoundRect(
+                color = wallColor,
+                topLeft = Offset(w * 0.20f, h * 0.40f),
+                size = Size(w * 0.60f, h * 0.46f),
+                cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx())
+            )
+
+            // Gold trim band under roof
+            drawRect(
+                color = Color(0xFFF0B22B),
+                topLeft = Offset(w * 0.18f, h * 0.39f),
+                size = Size(w * 0.64f, h * 0.06f)
+            )
+
+            // Pitched Townhall roof
+            val roofPath = Path().apply {
+                moveTo(w * 0.10f, h * 0.41f)
+                lineTo(w * 0.50f, h * 0.10f)
+                lineTo(w * 0.90f, h * 0.41f)
+                close()
+            }
+            drawPath(path = roofPath, color = roofColor)
+
+            // Roof ridge highlight
+            drawRoundRect(
+                color = Color(0xFFF5C542),
+                topLeft = Offset(w * 0.44f, h * 0.07f),
+                size = Size(w * 0.12f, h * 0.08f),
+                cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+            )
+
+            // Dark arched entrance doorway
+            drawRoundRect(
+                color = Color(0xFF2B241D),
+                topLeft = Offset(w * 0.39f, h * 0.54f),
+                size = Size(w * 0.22f, h * 0.32f),
+                cornerRadius = CornerRadius(6.dp.toPx(), 6.dp.toPx())
+            )
+        }
+
+        // Level badge at the bottom right
+        if (!isUninitialized) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(2.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xD91F1A14))
+                    .padding(horizontal = 4.dp, vertical = 1.dp)
+            ) {
+                Text(
+                    text = "TH$townHallLevel",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Black),
+                    color = Color(0xFFFFD24C)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ClashStopwatchIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val center = Offset(w * 0.5f, h * 0.54f)
+        val radius = w * 0.38f
+
+        // Top crown ring / stem
+        drawCircle(
+            color = Color(0xFF1A120B),
+            radius = w * 0.12f,
+            center = Offset(w * 0.5f, h * 0.13f)
+        )
+        drawCircle(
+            color = Color(0xFFF5B82E),
+            radius = w * 0.08f,
+            center = Offset(w * 0.5f, h * 0.13f)
+        )
+
+        // Outer dark outline
+        drawCircle(
+            color = Color(0xFF1A120B),
+            radius = radius + 2.dp.toPx(),
+            center = center
+        )
+
+        // Gold metallic case
+        drawCircle(
+            brush = Brush.verticalGradient(
+                colors = listOf(Color(0xFFFFDF70), Color(0xFFD98A16)),
+                startY = center.y - radius,
+                endY = center.y + radius
+            ),
+            radius = radius,
+            center = center
+        )
+
+        // Inner cream dial face
+        val faceRadius = radius * 0.76f
+        drawCircle(
+            color = Color(0xFFFCF2D9),
+            radius = faceRadius,
+            center = center
+        )
+
+        // Subtle inner rim shadow
+        drawCircle(
+            color = Color(0xFFB87914),
+            radius = faceRadius,
+            center = center,
+            style = Stroke(width = 1.dp.toPx())
+        )
+
+        // Clock hands
+        drawLine(
+            color = Color(0xFF2B1E14),
+            start = center,
+            end = Offset(center.x, center.y - faceRadius * 0.62f),
+            strokeWidth = 2.dp.toPx(),
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = Color(0xFF2B1E14),
+            start = center,
+            end = Offset(center.x - faceRadius * 0.4f, center.y + faceRadius * 0.25f),
+            strokeWidth = 1.8.dp.toPx(),
+            cap = StrokeCap.Round
+        )
+        drawCircle(
+            color = Color(0xFF2B1E14),
+            radius = 1.6.dp.toPx(),
+            center = center
+        )
+    }
+}
+
+enum class ClashCapsuleFillStyle {
+    GREEN,
+    ELIXIR
+}
+
+@Composable
+fun ClashUpgradeCapsuleBar(
+    titleText: String,
+    rightText: String,
+    progress: Float,
+    modifier: Modifier = Modifier,
+    isActive: Boolean = true,
+    showStopwatch: Boolean = isActive,
+    fillStyle: ClashCapsuleFillStyle = ClashCapsuleFillStyle.GREEN,
+    titleColor: Color = Color.White,
+    rightTextColor: Color = Color.White,
+    height: Dp = 36.dp
+) {
+    val shape = RoundedCornerShape(8.dp)
+    val clampedProgress = if (isActive) progress.coerceIn(0.04f, 1f) else 0f
+
+    val topFillColors = when (fillStyle) {
+        ClashCapsuleFillStyle.GREEN -> listOf(Color(0xFF84F040), Color(0xFF6CD62B))
+        ClashCapsuleFillStyle.ELIXIR -> listOf(Color(0xFFF564E8), Color(0xFFDE42CF))
+    }
+    val bottomFillColors = when (fillStyle) {
+        ClashCapsuleFillStyle.GREEN -> listOf(Color(0xFF4EB31B), Color(0xFF3D9412))
+        ClashCapsuleFillStyle.ELIXIR -> listOf(Color(0xFFB825AB), Color(0xFF8F1484))
+    }
+    val edgeHighlightColor = when (fillStyle) {
+        ClashCapsuleFillStyle.GREEN -> Color(0xFFB8FF5C)
+        ClashCapsuleFillStyle.ELIXIR -> Color(0xFFFF99F6)
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height)
+            .clip(shape)
+            .border(2.dp, Color(0xFF17110C), shape)
+            .padding(2.dp)
+            .clip(RoundedCornerShape(6.dp))
+    ) {
+        // Dark espresso-brown recessed two-tone track
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.46f)
+                    .background(Color(0xFF3B2B20))
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.54f)
+                    .background(Color(0xFF4F3B2D))
+            )
+        }
+
+        // Glossy Clash progress fill (Green or Elixir)
+        if (clampedProgress > 0f) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(clampedProgress)
+                    .fillMaxHeight()
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(0.46f)
+                            .background(Brush.verticalGradient(topFillColors))
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(0.54f)
+                            .background(Brush.verticalGradient(bottomFillColors))
+                    )
+                }
+
+                // Bright right-edge highlight bar
+                if (clampedProgress < 0.99f) {
+                    Box(
+                        modifier = Modifier
+                            .width(2.5.dp)
+                            .fillMaxHeight()
+                            .background(edgeHighlightColor)
+                            .align(Alignment.CenterEnd)
+                    )
+                }
+            }
+        }
+
+        // Overlaid text + pocket watch icon
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ClashShadowedText(
+                text = titleText,
+                style = MaterialTheme.typography.titleSmall,
+                color = titleColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                ClashShadowedText(
+                    text = rightText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = rightTextColor,
+                    maxLines = 1
+                )
+                if (showStopwatch) {
+                    ClashStopwatchIcon(size = 20.dp)
+                }
+            }
+        }
+    }
+}
+
+
 

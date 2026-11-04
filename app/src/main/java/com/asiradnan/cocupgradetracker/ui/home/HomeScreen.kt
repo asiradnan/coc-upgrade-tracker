@@ -23,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,9 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.asiradnan.cocupgradetracker.data.TimeFormatters
 import com.asiradnan.cocupgradetracker.data.VillageData
-import com.asiradnan.cocupgradetracker.ui.components.ClashCrestBadge
 import com.asiradnan.cocupgradetracker.ui.components.ClashPanelCard
-import com.asiradnan.cocupgradetracker.ui.components.ClashProgressBar
 import kotlin.math.abs
 
 @Composable
@@ -126,9 +123,7 @@ fun VillageSummaryRowCard(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val baseEpochSeconds = village.effectiveBaseEpochSeconds
-    val freeSlots = village.getFreeSlotDescriptions(nowEpochSeconds)
-    val freeSlotCount = village.getFreeSlotCount(nowEpochSeconds)
-    val totalSlotCount = village.totalSlotCount
+    val freeDurationSeconds = village.getFreeDurationSeconds(nowEpochSeconds)
 
     val allActiveUpgrades = (
         village.builderUpgrades +
@@ -138,24 +133,7 @@ fun VillageSummaryRowCard(
         ).filter { it.remainingSeconds(baseEpochSeconds, nowEpochSeconds) > 0L }
 
     val earliest = allActiveUpgrades.minByOrNull { it.finishEpochSeconds(baseEpochSeconds) }
-    val maxActiveDuration = allActiveUpgrades.maxOfOrNull { it.durationSecondsAtExport } ?: 0L
-
-    val hasAnyFree = freeSlotCount > 0
     val isUninitialized = village.pastedAtEpochSeconds == 0L && village.rawJson.isBlank()
-
-    val subtitleText = if (isUninitialized) {
-        "No data pasted yet"
-    } else {
-        buildString {
-            append("TH ${village.townHallLevel}")
-            if (village.builderHallLevel != null) {
-                append(" • BH ${village.builderHallLevel}")
-            }
-            if (village.tag.isNotBlank() && village.tag != "#NEW") {
-                append(" • ${village.tag}")
-            }
-        }
-    }
 
     ClashPanelCard(
         modifier = Modifier
@@ -164,137 +142,64 @@ fun VillageSummaryRowCard(
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick
-            )
+            ),
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
+            Text(
+                text = village.username,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold
+                ),
+                color = colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                ClashCrestBadge(
-                    text = if (isUninitialized) "NEW" else "TH${village.townHallLevel}",
-                    containerColor = if (isUninitialized) {
-                        colorScheme.surfaceVariant
-                    } else {
-                        colorScheme.primary
-                    },
-                    contentColor = Color.White,
-                    borderColor = Color(0xFF4A2B00),
-                    shadowText = !isUninitialized
-                )
-
-                Column {
-                    Text(
-                        text = village.username,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        ),
-                        color = colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = subtitleText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
+                    .padding(end = 12.dp)
+            )
 
             if (isUninitialized) {
-                ClashCrestBadge(
+                Text(
                     text = "Tap to paste",
-                    containerColor = colorScheme.surfaceVariant,
-                    contentColor = colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colorScheme.onSurfaceVariant
                 )
-            } else if (hasAnyFree) {
+            } else if (freeDurationSeconds != null) {
+                val freeTimeLabel = if (freeDurationSeconds <= 0L) {
+                    "now"
+                } else {
+                    TimeFormatters.formatCompactDuration(freeDurationSeconds)
+                }
                 Column(horizontalAlignment = Alignment.End) {
-                    ClashCrestBadge(
-                        text = "$freeSlotCount/$totalSlotCount Free",
-                        containerColor = colorScheme.tertiary,
-                        contentColor = Color.White,
-                        borderColor = Color(0xFF1E4D08),
-                        shadowText = true
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = freeSlots.joinToString(" • "),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        text = "free",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                        color = colorScheme.error
+                    )
+                    Text(
+                        text = freeTimeLabel,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = colorScheme.error
                     )
                 }
             } else if (earliest != null) {
                 val finishEpoch = earliest.finishEpochSeconds(baseEpochSeconds)
-                val remaining = earliest.remainingSeconds(baseEpochSeconds, nowEpochSeconds)
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = TimeFormatters.formatShortClockTime(finishEpoch, nowEpochSeconds),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
-                        color = colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "in ${TimeFormatters.formatCompactDuration(remaining)} • 0/$totalSlotCount free",
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = colorScheme.primary
-                    )
-                }
-            }
-        }
-
-        if (!isUninitialized && earliest != null) {
-            val earliestProgress = earliest.progressFraction(
-                baseEpochSeconds = baseEpochSeconds,
-                nowEpochSeconds = nowEpochSeconds,
-                referenceMaxSeconds = maxActiveDuration
-            )
-            val remaining = earliest.remainingSeconds(baseEpochSeconds, nowEpochSeconds)
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
                 Text(
-                    text = "Next: ${earliest.name} (${earliest.levelTransitionText})",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp)
-                )
-                Text(
-                    text = TimeFormatters.formatCompactDuration(remaining),
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.ExtraBold),
-                    color = if (hasAnyFree) colorScheme.tertiary else colorScheme.primary
+                    text = TimeFormatters.formatShortClockTime(finishEpoch, nowEpochSeconds),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    ),
+                    color = colorScheme.tertiary,
+                    textAlign = TextAlign.End
                 )
             }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            ClashProgressBar(
-                progress = earliestProgress,
-                modifier = Modifier.fillMaxWidth(),
-                fillColor = if (hasAnyFree) colorScheme.tertiary else colorScheme.primary,
-                height = 10.dp
-            )
         }
     }
 }
