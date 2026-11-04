@@ -33,28 +33,30 @@ fun HomeTopAppBar(
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorScheme.background,
-            titleContentColor = colorScheme.onBackground,
-            actionIconContentColor = colorScheme.onBackground
-        ),
-        title = {
-            ClashOutlinedText(
-                text = "COC Upgrade Tracker",
-                style = MaterialTheme.typography.titleLarge,
-                color = colorScheme.onBackground
-            )
-        },
-        actions = {
-            ClashBevelButton(
-                text = "Paste update",
-                onClick = onGlobalPasteClick,
-                style = ClashButtonStyle.GREEN,
-                modifier = Modifier.padding(end = 12.dp)
-            )
-        }
-    )
+    Column {
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = colorScheme.background,
+                titleContentColor = colorScheme.onBackground,
+                actionIconContentColor = colorScheme.onBackground
+            ),
+            title = {
+                ClashOutlinedText(
+                    text = "COC Upgrade Tracker",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            actions = {
+                ClashBevelButton(
+                    text = "Paste update",
+                    onClick = onGlobalPasteClick,
+                    style = ClashButtonStyle.GREEN,
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+            }
+        )
+        ClashEtchedDivider()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,62 +70,64 @@ fun VillageDetailTopAppBar(
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorScheme.background,
-            titleContentColor = colorScheme.onBackground,
-            navigationIconContentColor = colorScheme.onBackground,
-            actionIconContentColor = colorScheme.onBackground
-        ),
-        navigationIcon = {
-            ClashBevelIconButton(
-                icon = Icons.Default.Home,
-                contentDescription = "Home",
-                onClick = onHomeClick,
-                style = ClashButtonStyle.BLUE,
-                modifier = Modifier.padding(start = 10.dp)
-            )
-        },
-        title = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                ClashOutlinedText(
-                    text = villageName,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = colorScheme.onBackground,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+    Column {
+        CenterAlignedTopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = colorScheme.background,
+                titleContentColor = colorScheme.onBackground,
+                navigationIconContentColor = colorScheme.onBackground,
+                actionIconContentColor = colorScheme.onBackground
+            ),
+            navigationIcon = {
+                ClashBevelIconButton(
+                    icon = Icons.Default.Home,
+                    contentDescription = "Home",
+                    onClick = onHomeClick,
+                    style = ClashButtonStyle.BLUE,
+                    modifier = Modifier.padding(start = 10.dp)
                 )
-                if (totalVillages > 1) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        for (i in 0 until totalVillages.coerceAtMost(8)) {
-                            val isSelected = i == selectedIndex
-                            Box(
-                                modifier = Modifier
-                                    .size(if (isSelected) 7.dp else 5.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        if (isSelected) colorScheme.primary
-                                        else colorScheme.onBackground.copy(alpha = 0.35f)
-                                    )
-                            )
+            },
+            title = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    ClashOutlinedText(
+                        text = villageName,
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (totalVillages > 1) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            for (i in 0 until totalVillages.coerceAtMost(8)) {
+                                val isSelected = i == selectedIndex
+                                Box(
+                                    modifier = Modifier
+                                        .size(if (isSelected) 7.dp else 5.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (isSelected) colorScheme.primary
+                                            else colorScheme.onBackground.copy(alpha = 0.35f)
+                                        )
+                                )
+                            }
                         }
                     }
                 }
+            },
+            actions = {
+                ClashBevelIconButton(
+                    icon = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Next village",
+                    onClick = onNextVillageClick,
+                    style = ClashButtonStyle.BLUE,
+                    enabled = totalVillages > 1,
+                    modifier = Modifier.padding(end = 10.dp)
+                )
             }
-        },
-        actions = {
-            ClashBevelIconButton(
-                icon = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Next village",
-                onClick = onNextVillageClick,
-                style = ClashButtonStyle.BLUE,
-                enabled = totalVillages > 1,
-                modifier = Modifier.padding(end = 10.dp)
-            )
-        }
-    )
+        )
+        ClashEtchedDivider()
+    }
 }

@@ -57,29 +57,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueBottom
-import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueGlossBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueGlossTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueLip
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonDisabledBottom
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonDisabledLip
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonDisabledTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldBottom
-import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldGlossBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldGlossTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldLip
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeBottom
-import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeGlossBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeGlossTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeLip
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralBottom
-import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralGlossBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralGlossTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralLip
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedBottom
-import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedGlossBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedGlossTop
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedLip
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedTop
 import com.asiradnan.cocupgradetracker.ui.theme.ClashInkOutline
+import com.asiradnan.cocupgradetracker.ui.theme.MenuDivider
+import com.asiradnan.cocupgradetracker.ui.theme.MenuDividerHighlight
 import com.asiradnan.cocupgradetracker.ui.theme.OnButtonDisabled
 import com.asiradnan.cocupgradetracker.ui.theme.OnButtonNeutral
 import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderStone
@@ -93,10 +100,11 @@ enum class ClashButtonStyle {
 }
 
 private data class BevelPalette(
+    val glossTop: Color,
+    val glossBottom: Color,
     val topGradient: Color,
     val bottomGradient: Color,
     val bottomLip: Color,
-    val gloss: Color,
     val border: Color = ClashInkOutline,
     val contentColor: Color = Color.White,
     val useDarkShadow: Boolean = true
@@ -104,34 +112,39 @@ private data class BevelPalette(
 
 private fun ClashButtonStyle.toPalette(): BevelPalette = when (this) {
     ClashButtonStyle.GREEN -> BevelPalette(
+        glossTop = ButtonLimeGlossTop,
+        glossBottom = ButtonLimeGlossBottom,
         topGradient = ButtonLimeTop,
         bottomGradient = ButtonLimeBottom,
-        bottomLip = ButtonLimeLip,
-        gloss = ButtonLimeGloss
+        bottomLip = ButtonLimeLip
     )
     ClashButtonStyle.BLUE -> BevelPalette(
+        glossTop = ButtonBlueGlossTop,
+        glossBottom = ButtonBlueGlossBottom,
         topGradient = ButtonBlueTop,
         bottomGradient = ButtonBlueBottom,
-        bottomLip = ButtonBlueLip,
-        gloss = ButtonBlueGloss
+        bottomLip = ButtonBlueLip
     )
     ClashButtonStyle.GOLD -> BevelPalette(
+        glossTop = ButtonGoldGlossTop,
+        glossBottom = ButtonGoldGlossBottom,
         topGradient = ButtonGoldTop,
         bottomGradient = ButtonGoldBottom,
-        bottomLip = ButtonGoldLip,
-        gloss = ButtonGoldGloss
+        bottomLip = ButtonGoldLip
     )
     ClashButtonStyle.RED -> BevelPalette(
+        glossTop = ButtonRedGlossTop,
+        glossBottom = ButtonRedGlossBottom,
         topGradient = ButtonRedTop,
         bottomGradient = ButtonRedBottom,
-        bottomLip = ButtonRedLip,
-        gloss = ButtonRedGloss
+        bottomLip = ButtonRedLip
     )
     ClashButtonStyle.NEUTRAL -> BevelPalette(
+        glossTop = ButtonNeutralGlossTop,
+        glossBottom = ButtonNeutralGlossBottom,
         topGradient = ButtonNeutralTop,
         bottomGradient = ButtonNeutralBottom,
         bottomLip = ButtonNeutralLip,
-        gloss = ButtonNeutralGloss,
         contentColor = OnButtonNeutral,
         useDarkShadow = false
     )
@@ -139,10 +152,11 @@ private fun ClashButtonStyle.toPalette(): BevelPalette = when (this) {
 
 /** Shared CoC-grey palette for any disabled bevel button. */
 private val DisabledBevelPalette = BevelPalette(
+    glossTop = ButtonDisabledTop,
+    glossBottom = ButtonDisabledTop,
     topGradient = ButtonDisabledTop,
     bottomGradient = ButtonDisabledBottom,
     bottomLip = ButtonDisabledLip,
-    gloss = ButtonDisabledTop,
     contentColor = OnButtonDisabled,
     useDarkShadow = false
 )
@@ -154,10 +168,11 @@ val ClashTextShadow = Shadow(
 )
 
 /**
- * Clash-style text: colored fill with a thick dark outline and a hard drop shadow.
+ * Clash-style text: colored fill with a thick dark outline and a hard 3D downward drop shadow
+ * matching the "Music" / "Sound Effects" / "Language" labels in the CoC Settings screen.
  *
  * Drawn as two stacked layers with identical layout:
- *  1. a stroked copy (outline color + drop shadow) underneath,
+ *  1. a stroked copy (outline color + density-aware downward extrusion shadow) underneath,
  *  2. the plain filled copy on top, which hides the inner half of the stroke.
  *
  * @param outlineWidth visible outline thickness; [Dp.Unspecified] scales it with the font size.
@@ -176,15 +191,20 @@ fun ClashOutlinedText(
     textAlign: TextAlign? = null
 ) {
     val density = LocalDensity.current
-    val strokeWidthPx = with(density) {
+    val (strokeWidthPx, extrudedShadow) = with(density) {
         val visibleOutlinePx = if (outlineWidth.isSpecified) {
             outlineWidth.toPx()
         } else {
             val fontSize = if (style.fontSize.isSpecified) style.fontSize else 14.sp
-            (fontSize.toPx() * 0.11f).coerceAtLeast(1.dp.toPx())
+            (fontSize.toPx() * 0.135f).coerceIn(1.5.dp.toPx(), 2.6.dp.toPx())
         }
+        val shadow = Shadow(
+            color = outlineColor,
+            offset = Offset(0f, 1.8.dp.toPx()),
+            blurRadius = 0.5.dp.toPx()
+        )
         // Stroke is centered on the glyph edge and the fill hides the inner half
-        visibleOutlinePx * 2f
+        (visibleOutlinePx * 2f) to shadow
     }
 
     // propagateMinConstraints keeps both layers the same size, so textAlign
@@ -193,8 +213,12 @@ fun ClashOutlinedText(
         Text(
             text = text,
             style = style.copy(
-                drawStyle = Stroke(width = strokeWidthPx, join = StrokeJoin.Round),
-                shadow = if (dropShadow) ClashTextShadow else null
+                drawStyle = Stroke(
+                    width = strokeWidthPx,
+                    join = StrokeJoin.Round,
+                    cap = StrokeCap.Round
+                ),
+                shadow = if (dropShadow) extrudedShadow else null
             ),
             color = outlineColor,
             maxLines = maxLines,
@@ -212,6 +236,105 @@ fun ClashOutlinedText(
     }
 }
 
+/**
+ * Two-line etched horizontal groove (`1.dp` shadow line on top + `1.dp` light highlight underneath)
+ * matching the horizontal divider in the CoC Settings window.
+ */
+@Composable
+fun ClashEtchedDivider(
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MenuDivider)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MenuDividerHighlight)
+        )
+    }
+}
+
+private fun Modifier.clashBevelBackground(
+    palette: BevelPalette,
+    isPressed: Boolean,
+    enabled: Boolean,
+    cornerRadiusDp: Dp = 10.dp
+): Modifier = this.drawWithContent {
+    val cornerPx = cornerRadiusDp.toPx()
+    val strokePx = 2.dp.toPx()
+    val halfStroke = strokePx / 2f
+    val lipPx = if (isPressed || !enabled) 1.5.dp.toPx() else 3.5.dp.toPx()
+
+    // 1. Soft outer drop shadow underneath button on the light stone panel
+    if (!isPressed) {
+        drawRoundRect(
+            color = Color(0x33000000),
+            topLeft = Offset(0f, 2.dp.toPx()),
+            size = size,
+            cornerRadius = CornerRadius(cornerPx, cornerPx)
+        )
+    }
+
+    // 2. Full-button dark 3D bottom lip fill
+    drawRoundRect(
+        color = palette.bottomLip,
+        topLeft = Offset(halfStroke, halfStroke),
+        size = Size(size.width - strokePx, size.height - strokePx),
+        cornerRadius = CornerRadius(cornerPx, cornerPx)
+    )
+
+    // 3. Main body gradient above the bottom bevel lip
+    val bodyHeight = (size.height - strokePx - lipPx).coerceAtLeast(0f)
+    val bodyCorner = (cornerPx - halfStroke).coerceAtLeast(2f)
+    drawRoundRect(
+        brush = Brush.verticalGradient(
+            colors = listOf(palette.topGradient, palette.bottomGradient),
+            startY = halfStroke,
+            endY = halfStroke + bodyHeight
+        ),
+        topLeft = Offset(halfStroke, halfStroke),
+        size = Size(size.width - strokePx, bodyHeight),
+        cornerRadius = CornerRadius(bodyCorner, bodyCorner)
+    )
+
+    // 4. Upper-half inset rounded gloss pill (signature CoC Settings button highlight)
+    if (enabled && bodyHeight > 6f) {
+        val glossInsetX = 3.5.dp.toPx()
+        val glossInsetTop = 2.5.dp.toPx()
+        val glossWidth = (size.width - strokePx - glossInsetX * 2f).coerceAtLeast(0f)
+        val glossHeight = (bodyHeight * 0.46f).coerceAtLeast(0f)
+        val glossCorner = (bodyCorner - 2.dp.toPx()).coerceAtLeast(2f)
+
+        drawRoundRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(palette.glossTop, palette.glossBottom),
+                startY = halfStroke + glossInsetTop,
+                endY = halfStroke + glossInsetTop + glossHeight
+            ),
+            topLeft = Offset(halfStroke + glossInsetX, halfStroke + glossInsetTop),
+            size = Size(glossWidth, glossHeight),
+            cornerRadius = CornerRadius(glossCorner, glossCorner)
+        )
+    }
+
+    // 5. Crisp outer black outline
+    drawRoundRect(
+        color = palette.border,
+        topLeft = Offset(halfStroke, halfStroke),
+        size = Size(size.width - strokePx, size.height - strokePx),
+        cornerRadius = CornerRadius(cornerPx, cornerPx),
+        style = Stroke(width = strokePx)
+    )
+
+    drawContent()
+}
+
 @Composable
 fun ClashBevelButton(
     text: String,
@@ -220,76 +343,63 @@ fun ClashBevelButton(
     style: ClashButtonStyle = ClashButtonStyle.GREEN,
     enabled: Boolean = true,
     leadingIcon: ImageVector? = null,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 9.dp)
 ) {
     val palette = if (enabled) style.toPalette() else DisabledBevelPalette
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val shape = MaterialTheme.shapes.medium
+    val shape = RoundedCornerShape(10.dp)
 
-    val lipHeight = if (isPressed || !enabled) 1.dp else 3.dp
     val topOffset = if (isPressed && enabled) 2.dp else 0.dp
+    val bottomLipPadding = if (isPressed || !enabled) 1.dp else 2.5.dp
 
     Box(
         modifier = modifier
             .minimumInteractiveComponentSize()
             .padding(top = topOffset)
             .clip(shape)
-            .background(palette.bottomLip)
-            .border(1.5.dp, palette.border, shape)
+            .clashBevelBackground(
+                palette = palette,
+                isPressed = isPressed,
+                enabled = enabled,
+                cornerRadiusDp = 10.dp
+            )
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 enabled = enabled,
                 onClick = onClick
             )
-            .padding(bottom = lipHeight)
+            .padding(bottom = bottomLipPadding),
+        contentAlignment = Alignment.Center
     ) {
-        val bodyBrush = Brush.verticalGradient(listOf(palette.topGradient, palette.bottomGradient))
-
-        Box(
-            modifier = Modifier
-                .clip(shape)
-                .background(bodyBrush)
-                .drawWithContent {
-                    drawContent()
-                    if (enabled) {
-                        drawRect(
-                            color = Color.White.copy(alpha = 0.28f),
-                            topLeft = Offset.Zero,
-                            size = Size(size.width, 3.dp.toPx())
-                        )
-                    }
-                }
+        Row(
+            modifier = Modifier.padding(contentPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Row(
-                modifier = Modifier.padding(contentPadding),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                if (leadingIcon != null) {
-                    Icon(
-                        imageVector = leadingIcon,
-                        contentDescription = null,
-                        tint = palette.contentColor,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-                if (palette.useDarkShadow) {
-                    ClashOutlinedText(
-                        text = text,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = palette.contentColor,
-                        maxLines = 1
-                    )
-                } else {
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = palette.contentColor,
-                        maxLines = 1
-                    )
-                }
+            if (leadingIcon != null) {
+                Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = null,
+                    tint = palette.contentColor,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            if (palette.useDarkShadow) {
+                ClashOutlinedText(
+                    text = text,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = palette.contentColor,
+                    maxLines = 1
+                )
+            } else {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = palette.contentColor,
+                    maxLines = 1
+                )
             }
         }
     }
@@ -308,10 +418,10 @@ fun ClashBevelIconButton(
     val palette = if (enabled) style.toPalette() else DisabledBevelPalette
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val shape = MaterialTheme.shapes.medium
+    val shape = RoundedCornerShape(10.dp)
 
-    val lipHeight = if (isPressed || !enabled) 1.dp else 3.dp
     val topOffset = if (isPressed && enabled) 2.dp else 0.dp
+    val bottomLipPadding = if (isPressed || !enabled) 1.dp else 2.5.dp
 
     Box(
         modifier = modifier
@@ -319,42 +429,27 @@ fun ClashBevelIconButton(
             .size(buttonSize)
             .padding(top = topOffset)
             .clip(shape)
-            .background(palette.bottomLip)
-            .border(1.5.dp, palette.border, shape)
+            .clashBevelBackground(
+                palette = palette,
+                isPressed = isPressed,
+                enabled = enabled,
+                cornerRadiusDp = 10.dp
+            )
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 enabled = enabled,
                 onClick = onClick
             )
-            .padding(bottom = lipHeight)
+            .padding(bottom = bottomLipPadding),
+        contentAlignment = Alignment.Center
     ) {
-        val bodyBrush = Brush.verticalGradient(listOf(palette.topGradient, palette.bottomGradient))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .clip(shape)
-                .background(bodyBrush),
-            contentAlignment = Alignment.Center
-        ) {
-            if (enabled) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(3.dp)
-                        .background(Color.White.copy(alpha = 0.28f))
-                        .align(Alignment.TopCenter)
-                )
-            }
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = palette.contentColor,
-                modifier = Modifier.size(20.dp)
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = palette.contentColor,
+            modifier = Modifier.size(20.dp)
+        )
     }
 }
 

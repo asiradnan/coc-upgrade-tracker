@@ -25,8 +25,8 @@ private val ClashSettingsColorScheme = lightColorScheme(
     onError = OnClashRed,
     errorContainer = ClashRedContainer,
     onErrorContainer = OnClashRedContainer,
-    background = SlateBackground,
-    onBackground = OnSlateBackground,
+    background = MenuBackground,
+    onBackground = MenuText,
     surface = MenuSurface,
     onSurface = MenuText,
     surfaceVariant = MenuSurfaceVariant,
@@ -53,9 +53,9 @@ fun COCUpgradeTrackerTheme(
             @Suppress("DEPRECATION")
             window.navigationBarColor = android.graphics.Color.TRANSPARENT
             val insetsController = WindowCompat.getInsetsController(window, view)
-            // Keep light status/nav bar icons against the dark-slate outer backdrop
-            insetsController.isAppearanceLightStatusBars = false
-            insetsController.isAppearanceLightNavigationBars = false
+            // Use dark status/nav bar icons against the light CoC Settings window background
+            insetsController.isAppearanceLightStatusBars = true
+            insetsController.isAppearanceLightNavigationBars = true
         }
     }
 
