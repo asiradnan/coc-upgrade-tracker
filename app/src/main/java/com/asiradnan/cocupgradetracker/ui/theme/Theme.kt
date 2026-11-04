@@ -27,17 +27,17 @@ private val ClashSettingsColorScheme = lightColorScheme(
     onErrorContainer = OnClashRedContainer,
     background = SlateBackground,
     onBackground = OnSlateBackground,
-    surface = CreamSurface,
-    onSurface = EspressoText,
-    surfaceVariant = CreamSurfaceVariant,
-    onSurfaceVariant = TaupeText,
+    surface = MenuSurface,
+    onSurface = MenuText,
+    surfaceVariant = MenuSurfaceVariant,
+    onSurfaceVariant = MenuCaptionText,
     surfaceContainerLowest = SlateSurfaceLowest,
-    surfaceContainerLow = CreamSurfaceLow,
-    surfaceContainer = CreamSurface,
-    surfaceContainerHigh = CreamSurfaceVariant,
-    surfaceContainerHighest = CreamSurfaceHighest,
-    outline = StoneOutline,
-    outlineVariant = SandOutlineVariant
+    surfaceContainerLow = MenuSurfaceLow,
+    surfaceContainer = MenuSurface,
+    surfaceContainerHigh = MenuSurfaceVariant,
+    surfaceContainerHighest = MenuSurfaceHighest,
+    outline = MenuOutline,
+    outlineVariant = MenuDivider
 )
 
 @Composable

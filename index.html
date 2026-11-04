@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - COC Upgrade Tracker</title>
+  <meta name="description" content="Privacy Policy for COC Upgrade Tracker Android application. Learn how your data is handled locally and securely.">
+  <meta name="robots" content="index, follow">
+  <style>
+    :root {
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+      --bg-page: #0f141c;
+      --bg-card: #18202c;
+      --bg-card-alt: #1f2a3a;
+      --border-color: #2b384c;
+      --text-main: #f0f4f8;
+      --text-muted: #9bb0c6;
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.15);
+      --accent-success: #10b981;
+      --badge-bg: rgba(16, 185, 129, 0.15);
+      --badge-border: rgba(16, 185, 129, 0.35);
+      --badge-text: #34d399;
+      --max-width: 820px;
+      color-scheme: dark light;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg-page: #f8fafc;
+        --bg-card: #ffffff;
+        --bg-card-alt: #f1f5f9;
+        --border-color: #e2e8f0;
+        --text-main: #0f172a;
+        --text-muted: #475569;
+        --accent: #d97706;
+        --accent-glow: rgba(217, 119, 6, 0.12);
+        --accent-success: #059669;
+        --badge-bg: rgba(5, 150, 105, 0.1);
+        --badge-border: rgba(5, 150, 105, 0.3);
+        --badge-text: #047857;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.68;
+      font-size: 16px;
+      padding: 32px 16px 64px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(180deg, var(--bg-card-alt) 0%, var(--bg-card) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 36px 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #f59e0b, #ef4444, #10b981);
+    }
+
+    .app-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--badge-text);
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    .app-badge::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--badge-text);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .highlight-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--accent);
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--accent-glow) 100%);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .highlight-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .highlight-content h2 {
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .highlight-content p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    main {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    section {
+      margin-bottom: 32px;
+    }
+
+    section:last-of-type {
+      margin-bottom: 0;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    ul {
+      margin: 10px 0 16px 24px;
+      color: var(--text-muted);
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    li strong {
+      color: var(--text-main);
+    }
+
+    .key-points-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    .key-box {
+      background-color: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .key-box-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .key-box-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .disclaimer-box {
+      background-color: var(--bg-card-alt);
+      border-left: 4px solid var(--accent);
+      border-radius: 4px 10px 10px 4px;
+      padding: 16px 20px;
+      margin-top: 14px;
+    }
+
+    .disclaimer-box p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 36px;
+      padding: 0 16px;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px 12px 48px 12px;
+      }
+
+      header, main {
+        padding: 24px 20px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .highlight-card {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      header, main, .highlight-card, .key-box {
+        border-color: #ccc;
+        background: none;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="app-badge">100% Offline &amp; Privacy-First</div>
+      <h1>Privacy Policy</h1>
+      <div class="subtitle">
+        Application: <strong>COC Upgrade Tracker</strong> | Last Updated: <strong>November 4, 2026</strong>
+      </div>
+    </header>
+
+    <div class="highlight-card">
+      <div class="highlight-icon">🔒</div>
+      <div class="highlight-content">
+        <h2>Your Privacy is Absolute</h2>
+        <p>
+          <strong>COC Upgrade Tracker</strong> does not request internet permission, does not collect personal information, does not contain advertisements, and does not transmit data to external servers. Everything stays on your device.
+        </p>
+      </div>
+    </div>
+
+    <main>
+      <section id="introduction">
+        <h2>1. Introduction</h2>
+        <p>
+          This Privacy Policy applies to the <strong>COC Upgrade Tracker</strong> mobile application developed by <strong>Asir Adnan</strong> ("we", "us", or "our"). We understand how important your privacy is, and we designed COC Upgrade Tracker from the ground up to respect and protect your data.
+        </p>
+        <p>
+          This policy clearly explains what information the application handles, how it is stored, and your rights regarding that information.
+        </p>
+      </section>
+
+      <section id="no-internet">
+        <h2>2. Zero Network Access (No Internet Permission)</h2>
+        <p>
+          COC Upgrade Tracker operates completely offline. The application’s manifest does <strong>not</strong> include the Android <code>android.permission.INTERNET</code> permission.
+        </p>
+        <div class="key-points-grid">
+          <div class="key-box">
+            <div class="key-box-title">No Remote Servers</div>
+            <p class="key-box-desc">The app does not communicate with, send data to, or receive data from any external server or cloud service.</p>
+          </div>
+          <div class="key-box">
+            <div class="key-box-title">No Tracking SDKs</div>
+            <p class="key-box-desc">No telemetry, analytics libraries, crash-reporting SDKs, or third-party trackers are integrated into the app.</p>
+          </div>
+          <div class="key-box">
+            <div class="key-box-title">No Advertisements</div>
+            <p class="key-box-desc">The app is 100% ad-free and contains no advertising networks or ad-tracking identifiers.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="data-collected">
+        <h2>3. Information We Do NOT Collect</h2>
+        <p>We do not collect, process, or sell any personal or sensitive user data, including but not limited to:</p>
+        <ul>
+          <li><strong>Personal Identifiers:</strong> Names, real-world addresses, email addresses, phone numbers, or account logins.</li>
+          <li><strong>Supercell Account Credentials:</strong> Passwords, Supercell ID tokens, payment credentials, or game session tokens.</li>
+          <li><strong>Device Information:</strong> Device IDs, IMEI numbers, IP addresses, MAC addresses, or operating system fingerprints.</li>
+          <li><strong>Precise Location:</strong> GPS coordinates, Wi-Fi location, or network provider data.</li>
+          <li><strong>Media &amp; Files:</strong> Photos, camera feed, microphone audio, contacts, or external file systems.</li>
+        </ul>
+      </section>
+
+      <section id="local-storage">
+        <h2>4. Data Stored Locally on Your Device</h2>
+        <p>
+          COC Upgrade Tracker functions by allowing you to import your Clash of Clans village state (such as Town Hall level, builder count, and active upgrade durations) via JSON text:
+        </p>
+        <ul>
+          <li><strong>Village Profile Information:</strong> In-game player tag (e.g., <code>#ABC123</code>), village nickname, and building/upgrade progress.</li>
+          <li><strong>Storage Location:</strong> All parsed data is stored exclusively in private local storage (Android SharedPreferences) on your device.</li>
+          <li><strong>Purpose:</strong> This data is solely used to calculate local real-time countdown timers and display builder availability within the app interface.</li>
+        </ul>
+      </section>
+
+      <section id="clipboard-access">
+        <h2>5. Clipboard Usage</h2>
+        <p>
+          The app accesses your device's clipboard <strong>only</strong> when you explicitly tap the "Paste" or "Add Village" button to paste your exported village data string.
+        </p>
+        <p>
+          The app never monitors, inspects, or logs background clipboard activity.
+        </p>
+      </section>
+
+      <section id="data-retention-deletion">
+        <h2>6. Data Retention and Deletion</h2>
+        <p>
+          Since your data resides exclusively on your local device:
+        </p>
+        <ul>
+          <li><strong>In-App Deletion:</strong> You can delete any individual village profile at any time by long-pressing the village card or tapping the "Delete Village" button.</li>
+          <li><strong>Complete Wipe:</strong> You can wipe all app data at any time through your device settings under <em>Settings &gt; Apps &gt; COC Upgrade Tracker &gt; Storage &gt; Clear Data</em>, or simply by uninstalling the application.</li>
+        </ul>
+      </section>
+
+      <section id="children-privacy">
+        <h2>7. Children's Privacy</h2>
+        <p>
+          COC Upgrade Tracker does not collect any personal information from anyone, including children under the age of 13. It complies fully with the Children’s Online Privacy Protection Act (COPPA) and international child privacy regulations.
+        </p>
+      </section>
+
+      <section id="third-party-disclaimer">
+        <h2>8. Disclaimer &amp; Fan Content Policy</h2>
+        <p>
+          COC Upgrade Tracker is an unofficial helper utility created for Clash of Clans players:
+        </p>
+        <div class="disclaimer-box">
+          <p>
+            This material is unofficial and is not endorsed by Supercell.
+          </p>
+        </div>
+      </section>
+
+      <section id="changes">
+        <h2>9. Changes to This Privacy Policy</h2>
+        <p>
+          We may update this Privacy Policy from time to time. Any changes will be posted directly to this page with an updated "Last Updated" date. Because the app does not collect contact information, we encourage you to review this page periodically.
+        </p>
+      </section>
+
+      <section id="contact">
+        <h2>10. Contact Us</h2>
+        <p>
+          If you have any questions or concerns regarding this Privacy Policy or the COC Upgrade Tracker app, feel free to reach out:
+        </p>
+        <ul>
+          <li><strong>Developer:</strong> Asir Adnan</li>
+          <li><strong>GitHub Repository:</strong> <a href="https://github.com/asiradnan/COC-Upgrade-Tracker" target="_blank" rel="noopener noreferrer" style="color: var(--accent);">github.com/asiradnan/COC-Upgrade-Tracker</a></li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 COC Upgrade Tracker. All rights reserved.</p>
+      <p style="margin-top: 4px;">Designed for Clashers &bull; Private &bull; Offline</p>
+    </footer>
+  </div>
+
+</body>
+</html>
+

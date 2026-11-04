@@ -40,7 +40,7 @@ fun HomeTopAppBar(
             actionIconContentColor = colorScheme.onBackground
         ),
         title = {
-            ClashShadowedText(
+            ClashOutlinedText(
                 text = "COC Upgrade Tracker",
                 style = MaterialTheme.typography.titleLarge,
                 color = colorScheme.onBackground
@@ -86,7 +86,7 @@ fun VillageDetailTopAppBar(
         },
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                ClashShadowedText(
+                ClashOutlinedText(
                     text = villageName,
                     style = MaterialTheme.typography.titleLarge,
                     color = colorScheme.onBackground,

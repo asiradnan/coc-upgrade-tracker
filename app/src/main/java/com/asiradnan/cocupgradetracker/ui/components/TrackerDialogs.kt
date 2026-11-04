@@ -29,6 +29,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderDanger
+import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderStone
 
 @Composable
 fun DeleteVillageConfirmDialog(
@@ -41,7 +43,7 @@ fun DeleteVillageConfirmDialog(
     Dialog(onDismissRequest = onDismiss) {
         ClashPanelCard(
             headerTitle = "Delete Village?",
-            headerColor = Color(0xFF7D241C)
+            headerColor = PanelHeaderDanger
         ) {
             Text(
                 text = "\"$villageName\" and its tracked upgrade timers will be removed from this device.",
@@ -96,7 +98,7 @@ fun AddVillageDialog(
     Dialog(onDismissRequest = onDismiss) {
         ClashPanelCard(
             headerTitle = "Add Village",
-            headerColor = Color(0xFF575045)
+            headerColor = PanelHeaderStone
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Surface(

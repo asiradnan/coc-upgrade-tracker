@@ -43,14 +43,46 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.sp
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueLip
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueTop
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonDisabledBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonDisabledLip
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonDisabledTop
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldLip
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonGoldTop
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeLip
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonLimeTop
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralLip
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonNeutralTop
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedBottom
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedGloss
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedLip
+import com.asiradnan.cocupgradetracker.ui.theme.ButtonRedTop
+import com.asiradnan.cocupgradetracker.ui.theme.ClashInkOutline
+import com.asiradnan.cocupgradetracker.ui.theme.OnButtonDisabled
+import com.asiradnan.cocupgradetracker.ui.theme.OnButtonNeutral
+import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderStone
 
 enum class ClashButtonStyle {
     GREEN,
@@ -64,49 +96,56 @@ private data class BevelPalette(
     val topGradient: Color,
     val bottomGradient: Color,
     val bottomLip: Color,
-    val border: Color,
-    val contentColor: Color,
+    val gloss: Color,
+    val border: Color = ClashInkOutline,
+    val contentColor: Color = Color.White,
     val useDarkShadow: Boolean = true
 )
 
 private fun ClashButtonStyle.toPalette(): BevelPalette = when (this) {
     ClashButtonStyle.GREEN -> BevelPalette(
-        topGradient = Color(0xFF72CF34),
-        bottomGradient = Color(0xFF4B9E15),
-        bottomLip = Color(0xFF2E6B08),
-        border = Color(0xFF1E3D08),
-        contentColor = Color.White
+        topGradient = ButtonLimeTop,
+        bottomGradient = ButtonLimeBottom,
+        bottomLip = ButtonLimeLip,
+        gloss = ButtonLimeGloss
     )
     ClashButtonStyle.BLUE -> BevelPalette(
-        topGradient = Color(0xFF57ADFF),
-        bottomGradient = Color(0xFF267BD1),
-        bottomLip = Color(0xFF154E8A),
-        border = Color(0xFF0E2F54),
-        contentColor = Color.White
+        topGradient = ButtonBlueTop,
+        bottomGradient = ButtonBlueBottom,
+        bottomLip = ButtonBlueLip,
+        gloss = ButtonBlueGloss
     )
     ClashButtonStyle.GOLD -> BevelPalette(
-        topGradient = Color(0xFFFFD24C),
-        bottomGradient = Color(0xFFE59612),
-        bottomLip = Color(0xFF9C5E04),
-        border = Color(0xFF4A2B00),
-        contentColor = Color.White
+        topGradient = ButtonGoldTop,
+        bottomGradient = ButtonGoldBottom,
+        bottomLip = ButtonGoldLip,
+        gloss = ButtonGoldGloss
     )
     ClashButtonStyle.RED -> BevelPalette(
-        topGradient = Color(0xFFF25C4E),
-        bottomGradient = Color(0xFFCC2F21),
-        bottomLip = Color(0xFF85170D),
-        border = Color(0xFF4A0B05),
-        contentColor = Color.White
+        topGradient = ButtonRedTop,
+        bottomGradient = ButtonRedBottom,
+        bottomLip = ButtonRedLip,
+        gloss = ButtonRedGloss
     )
     ClashButtonStyle.NEUTRAL -> BevelPalette(
-        topGradient = Color(0xFFE8DFCE),
-        bottomGradient = Color(0xFFCBBFA8),
-        bottomLip = Color(0xFF968972),
-        border = Color(0xFF574E40),
-        contentColor = Color(0xFF2B251E),
+        topGradient = ButtonNeutralTop,
+        bottomGradient = ButtonNeutralBottom,
+        bottomLip = ButtonNeutralLip,
+        gloss = ButtonNeutralGloss,
+        contentColor = OnButtonNeutral,
         useDarkShadow = false
     )
 }
+
+/** Shared CoC-grey palette for any disabled bevel button. */
+private val DisabledBevelPalette = BevelPalette(
+    topGradient = ButtonDisabledTop,
+    bottomGradient = ButtonDisabledBottom,
+    bottomLip = ButtonDisabledLip,
+    gloss = ButtonDisabledTop,
+    contentColor = OnButtonDisabled,
+    useDarkShadow = false
+)
 
 val ClashTextShadow = Shadow(
     color = Color(0xD9000000),
@@ -114,28 +153,63 @@ val ClashTextShadow = Shadow(
     blurRadius = 1f
 )
 
+/**
+ * Clash-style text: colored fill with a thick dark outline and a hard drop shadow.
+ *
+ * Drawn as two stacked layers with identical layout:
+ *  1. a stroked copy (outline color + drop shadow) underneath,
+ *  2. the plain filled copy on top, which hides the inner half of the stroke.
+ *
+ * @param outlineWidth visible outline thickness; [Dp.Unspecified] scales it with the font size.
+ */
 @Composable
-fun ClashShadowedText(
+fun ClashOutlinedText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.titleMedium,
     color: Color = Color.White,
+    outlineColor: Color = ClashInkOutline,
+    outlineWidth: Dp = Dp.Unspecified,
+    dropShadow: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Clip,
     textAlign: TextAlign? = null
 ) {
-    Text(
-        text = text,
-        modifier = modifier,
-        style = style.copy(
-            fontWeight = FontWeight.Black,
-            shadow = ClashTextShadow
-        ),
-        color = color,
-        maxLines = maxLines,
-        overflow = overflow,
-        textAlign = textAlign
-    )
+    val density = LocalDensity.current
+    val strokeWidthPx = with(density) {
+        val visibleOutlinePx = if (outlineWidth.isSpecified) {
+            outlineWidth.toPx()
+        } else {
+            val fontSize = if (style.fontSize.isSpecified) style.fontSize else 14.sp
+            (fontSize.toPx() * 0.11f).coerceAtLeast(1.dp.toPx())
+        }
+        // Stroke is centered on the glyph edge and the fill hides the inner half
+        visibleOutlinePx * 2f
+    }
+
+    // propagateMinConstraints keeps both layers the same size, so textAlign
+    // and ellipsis behave identically when the caller forces a width.
+    Box(modifier = modifier, propagateMinConstraints = true) {
+        Text(
+            text = text,
+            style = style.copy(
+                drawStyle = Stroke(width = strokeWidthPx, join = StrokeJoin.Round),
+                shadow = if (dropShadow) ClashTextShadow else null
+            ),
+            color = outlineColor,
+            maxLines = maxLines,
+            overflow = overflow,
+            textAlign = textAlign
+        )
+        Text(
+            text = text,
+            style = style.copy(drawStyle = Fill, shadow = null),
+            color = color,
+            maxLines = maxLines,
+            overflow = overflow,
+            textAlign = textAlign
+        )
+    }
 }
 
 @Composable
@@ -148,7 +222,7 @@ fun ClashBevelButton(
     leadingIcon: ImageVector? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
 ) {
-    val palette = style.toPalette()
+    val palette = if (enabled) style.toPalette() else DisabledBevelPalette
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val shape = MaterialTheme.shapes.medium
@@ -161,8 +235,8 @@ fun ClashBevelButton(
             .minimumInteractiveComponentSize()
             .padding(top = topOffset)
             .clip(shape)
-            .background(if (enabled) palette.bottomLip else Color(0xFF44474C))
-            .border(1.5.dp, if (enabled) palette.border else Color(0xFF2B2E33), shape)
+            .background(palette.bottomLip)
+            .border(1.5.dp, palette.border, shape)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -171,11 +245,7 @@ fun ClashBevelButton(
             )
             .padding(bottom = lipHeight)
     ) {
-        val bodyBrush = if (enabled) {
-            Brush.verticalGradient(listOf(palette.topGradient, palette.bottomGradient))
-        } else {
-            Brush.verticalGradient(listOf(Color(0xFF6B6F75), Color(0xFF55595E)))
-        }
+        val bodyBrush = Brush.verticalGradient(listOf(palette.topGradient, palette.bottomGradient))
 
         Box(
             modifier = Modifier
@@ -205,8 +275,8 @@ fun ClashBevelButton(
                         modifier = Modifier.size(18.dp)
                     )
                 }
-                if (palette.useDarkShadow && enabled) {
-                    ClashShadowedText(
+                if (palette.useDarkShadow) {
+                    ClashOutlinedText(
                         text = text,
                         style = MaterialTheme.typography.labelLarge,
                         color = palette.contentColor,
@@ -215,8 +285,8 @@ fun ClashBevelButton(
                 } else {
                     Text(
                         text = text,
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.ExtraBold),
-                        color = if (enabled) palette.contentColor else Color.White.copy(alpha = 0.5f),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = palette.contentColor,
                         maxLines = 1
                     )
                 }
@@ -235,7 +305,7 @@ fun ClashBevelIconButton(
     enabled: Boolean = true,
     buttonSize: Dp = 40.dp
 ) {
-    val palette = style.toPalette()
+    val palette = if (enabled) style.toPalette() else DisabledBevelPalette
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val shape = MaterialTheme.shapes.medium
@@ -249,8 +319,8 @@ fun ClashBevelIconButton(
             .size(buttonSize)
             .padding(top = topOffset)
             .clip(shape)
-            .background(if (enabled) palette.bottomLip else Color(0xFF3A3D42))
-            .border(1.5.dp, if (enabled) palette.border else Color(0xFF25282C), shape)
+            .background(palette.bottomLip)
+            .border(1.5.dp, palette.border, shape)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -259,11 +329,7 @@ fun ClashBevelIconButton(
             )
             .padding(bottom = lipHeight)
     ) {
-        val bodyBrush = if (enabled) {
-            Brush.verticalGradient(listOf(palette.topGradient, palette.bottomGradient))
-        } else {
-            Brush.verticalGradient(listOf(Color(0xFF52565C), Color(0xFF42464B)))
-        }
+        val bodyBrush = Brush.verticalGradient(listOf(palette.topGradient, palette.bottomGradient))
 
         Box(
             modifier = Modifier
@@ -285,7 +351,7 @@ fun ClashBevelIconButton(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = if (enabled) palette.contentColor else Color.White.copy(alpha = 0.35f),
+                tint = palette.contentColor,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -296,10 +362,10 @@ fun ClashBevelIconButton(
 fun ClashPanelCard(
     modifier: Modifier = Modifier,
     headerTitle: String? = null,
-    headerColor: Color = Color(0xFF575045),
+    headerColor: Color = PanelHeaderStone,
     headerTrailingContent: (@Composable RowScope.() -> Unit)? = null,
     containerColor: Color = MaterialTheme.colorScheme.surface,
-    borderColor: Color = Color(0xFF544B3E),
+    borderColor: Color = ClashInkOutline,
     shape: Shape = MaterialTheme.shapes.large,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
     content: @Composable ColumnScope.() -> Unit
@@ -332,7 +398,7 @@ fun ClashPanelCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ClashShadowedText(
+                    ClashOutlinedText(
                         text = headerTitle,
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White
@@ -419,7 +485,7 @@ fun ClashCrestBadge(
         border = BorderStroke(1.2.dp, borderColor)
     ) {
         if (shadowText) {
-            ClashShadowedText(
+            ClashOutlinedText(
                 text = text,
                 style = MaterialTheme.typography.labelSmall,
                 color = contentColor,
@@ -719,7 +785,7 @@ fun ClashUpgradeCapsuleBar(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ClashShadowedText(
+            ClashOutlinedText(
                 text = titleText,
                 style = MaterialTheme.typography.titleSmall,
                 color = titleColor,
@@ -734,9 +800,9 @@ fun ClashUpgradeCapsuleBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                ClashShadowedText(
+                ClashOutlinedText(
                     text = rightText,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     color = rightTextColor,
                     maxLines = 1
                 )

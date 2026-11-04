@@ -30,6 +30,8 @@ import com.asiradnan.cocupgradetracker.ui.components.ClashCapsuleFillStyle
 import com.asiradnan.cocupgradetracker.ui.components.ClashCrestBadge
 import com.asiradnan.cocupgradetracker.ui.components.ClashPanelCard
 import com.asiradnan.cocupgradetracker.ui.components.ClashUpgradeCapsuleBar
+import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderBuilderBase
+import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderTownHall
 import kotlin.math.max
 
 @Composable
@@ -77,7 +79,7 @@ fun VillageDetailScreen(
 
         BaseSectionCard(
             title = "Townhall",
-            headerColor = Color(0xFF5C5242),
+            headerColor = PanelHeaderTownHall,
             levelBadge = if (village.pastedAtEpochSeconds > 0L) "TH ${village.townHallLevel}" else null,
             totalBuilders = village.totalHomeBuilders,
             builderUpgrades = village.builderUpgrades,
@@ -91,7 +93,7 @@ fun VillageDetailScreen(
 
         BaseSectionCard(
             title = "Builder Base",
-            headerColor = Color(0xFF3B4D66),
+            headerColor = PanelHeaderBuilderBase,
             levelBadge = if (village.pastedAtEpochSeconds > 0L && village.builderHallLevel != null) {
                 "BH ${village.builderHallLevel}"
             } else {
@@ -228,8 +230,6 @@ private fun BaseSectionCard(
     ClashPanelCard(
         headerTitle = title,
         headerColor = headerColor,
-        containerColor = Color(0xFF634B3A),
-        borderColor = Color(0xFF2E2219),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
         headerTrailingContent = {
             if (levelBadge != null) {
