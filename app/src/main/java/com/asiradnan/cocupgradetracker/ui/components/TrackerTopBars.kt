@@ -1,6 +1,7 @@
 package com.asiradnan.cocupgradetracker.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -29,7 +32,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomeTopAppBar(
     villageCount: Int,
-    onGlobalPasteClick: () -> Unit
+    onAddVillageClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -48,9 +51,10 @@ fun HomeTopAppBar(
             },
             actions = {
                 ClashBevelButton(
-                    text = "Paste update",
-                    onClick = onGlobalPasteClick,
-                    style = ClashButtonStyle.GREEN,
+                    text = "Add village",
+                    leadingIcon = Icons.Default.Add,
+                    onClick = onAddVillageClick,
+                    style = ClashButtonStyle.BLUE,
                     modifier = Modifier.padding(end = 12.dp)
                 )
             }
@@ -66,7 +70,8 @@ fun VillageDetailTopAppBar(
     selectedIndex: Int,
     totalVillages: Int,
     onHomeClick: () -> Unit,
-    onNextVillageClick: () -> Unit
+    onNextVillageClick: () -> Unit,
+    onSelectVillageClick: ((Int) -> Unit)? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -92,26 +97,41 @@ fun VillageDetailTopAppBar(
                     ClashOutlinedText(
                         text = villageName,
                         style = MaterialTheme.typography.titleLarge,
+                        outlineWidth = 1.6.dp,
+                        shadowOffset = 1.0.dp,
+                        shadowAlpha = 0.40f,
+                        shadowBlurRadius = 1.0.dp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     if (totalVillages > 1) {
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(3.dp))
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            horizontalArrangement = Arrangement.spacedBy(1.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             for (i in 0 until totalVillages.coerceAtMost(8)) {
                                 val isSelected = i == selectedIndex
                                 Box(
                                     modifier = Modifier
-                                        .size(if (isSelected) 7.dp else 5.dp)
                                         .clip(CircleShape)
-                                        .background(
-                                            if (isSelected) colorScheme.primary
-                                            else colorScheme.onBackground.copy(alpha = 0.35f)
+                                        .clickable(
+                                            enabled = onSelectVillageClick != null,
+                                            onClick = { onSelectVillageClick?.invoke(i) }
                                         )
-                                )
+                                        .padding(horizontal = 4.dp, vertical = 4.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(if (isSelected) 8.dp else 5.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                if (isSelected) Color(0xFF2682DE)
+                                                else Color(0xFF261D15).copy(alpha = 0.28f)
+                                            )
+                                    )
+                                }
                             }
                         }
                     }

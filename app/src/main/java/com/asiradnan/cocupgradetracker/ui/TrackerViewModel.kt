@@ -252,6 +252,40 @@ class TrackerViewModel(
         }
     }
 
+    /**
+     * Silently inspects the clipboard when app opens or resumes.
+     * If valid and unimported Clash of Clans JSON is found, it automatically applies it.
+     */
+    fun autoPasteClipboardIfNew(
+        clipText: String?,
+        nowEpochSeconds: Long
+    ): PasteOutcome? {
+        if (clipText.isNullOrBlank()) return null
+        if (!CocVillageParser.looksLikeCocExport(clipText)) return null
+
+        val trimmed = clipText.trim()
+        val currentList = _uiState.value.villages
+
+        // If any existing village already has this exact rawJson, do not re-apply
+        if (currentList.any { it.rawJson.trim() == trimmed }) {
+            return null
+        }
+
+        // If list is empty, auto-add as the first village
+        if (currentList.isEmpty()) {
+            return addVillage("", clipText, nowEpochSeconds)
+        }
+
+        // Otherwise intelligently update the matching village, or add if it's a new account tag
+        return when (val outcome = pasteUpdateIntelligent(clipText, nowEpochSeconds)) {
+            is PasteOutcome.Success -> outcome
+            is PasteOutcome.Error -> {
+                // If tag is not found in existing villages, auto-add as a new village
+                addVillage("", clipText, nowEpochSeconds)
+            }
+        }
+    }
+
     private fun hasValidTag(tag: String): Boolean =
         tag.isNotBlank() && tag != "#VILLAGE" && tag != "#NEW"
 

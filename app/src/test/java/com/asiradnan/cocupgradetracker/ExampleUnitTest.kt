@@ -40,11 +40,13 @@ class ExampleUnitTest {
         assertEquals(3, earliestLab.targetLevel)
         assertEquals(exportTime + 61500L, earliestLab.finishEpochSeconds(exportTime))
 
-        // Duration formatting check
+        // Duration & relative time formatting check
         assertEquals("2h 12m 0s", TimeFormatters.formatDuration(7920L))
         assertEquals("17h 5m 0s", TimeFormatters.formatDuration(61500L))
         assertEquals("3m ago", TimeFormatters.formatRelativeAgo(180L))
         assertEquals("just now", TimeFormatters.formatRelativeAgo(3L))
+        assertEquals("just now", TimeFormatters.formatRelativeAgo(45L))
+        assertTrue(TimeFormatters.formatPastedClockTime(exportTime, exportTime).startsWith("Today at"))
         assertEquals(2, village.totalBuilderBaseBuilders)
         assertEquals(10, village.totalSlotCount)
         assertEquals(0, village.getFreeSlotCount(exportTime))

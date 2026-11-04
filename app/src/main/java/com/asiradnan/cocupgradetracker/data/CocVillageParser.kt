@@ -4,6 +4,24 @@ import kotlin.math.max
 
 object CocVillageParser {
 
+    fun looksLikeCocExport(rawInput: String?): Boolean {
+        if (rawInput.isNullOrBlank()) return false
+        val trimmed = rawInput.trim()
+        val jsonStart = trimmed.indexOf('{')
+        val jsonEnd = trimmed.lastIndexOf('}')
+        if (jsonStart == -1 || jsonEnd == -1 || jsonEnd <= jsonStart) return false
+
+        val clean = trimmed.substring(jsonStart, jsonEnd + 1)
+        val hasTag = clean.contains("\"tag\"")
+        val hasCocKey = clean.contains("\"buildings\"") ||
+            clean.contains("\"heroes\"") ||
+            clean.contains("\"buildings2\"") ||
+            clean.contains("\"spells\"") ||
+            clean.contains("\"units\"")
+
+        return hasTag && hasCocKey
+    }
+
     fun parse(
         rawInput: String,
         pastedAtEpochSeconds: Long,

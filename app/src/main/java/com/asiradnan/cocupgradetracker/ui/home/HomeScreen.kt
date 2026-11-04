@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -31,7 +32,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.asiradnan.cocupgradetracker.data.TimeFormatters
 import com.asiradnan.cocupgradetracker.data.VillageData
+import com.asiradnan.cocupgradetracker.ui.components.ClashBevelButton
+import com.asiradnan.cocupgradetracker.ui.components.ClashButtonStyle
+import com.asiradnan.cocupgradetracker.ui.components.ClashBevelCard
+import com.asiradnan.cocupgradetracker.ui.components.ClashOutlinedText
 import com.asiradnan.cocupgradetracker.ui.components.ClashPanelCard
+import com.asiradnan.cocupgradetracker.ui.theme.ClashGreen
+import com.asiradnan.cocupgradetracker.ui.theme.ClashGreenBright
+import com.asiradnan.cocupgradetracker.ui.theme.ClashRed
 import kotlin.math.abs
 
 @Composable
@@ -41,7 +49,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onSelectVillage: (Int) -> Unit,
     onSwipeToDetail: () -> Unit,
-    onDeleteVillageClick: (Int) -> Unit
+    onDeleteVillageClick: (Int) -> Unit,
+    onPasteFromClipboardClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     var cumulativeDragX by remember { mutableFloatStateOf(0f) }
@@ -66,9 +75,9 @@ fun HomeScreen(
             }
             .verticalScroll(rememberScrollState())
             .padding(
-                start = 20.dp,
-                end = 20.dp,
-                top = 8.dp,
+                start = 16.dp,
+                end = 16.dp,
+                top = 10.dp,
                 bottom = 88.dp
             )
     ) {
@@ -81,24 +90,31 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
+                    ClashOutlinedText(
                         text = "No villages yet",
                         style = MaterialTheme.typography.titleMedium,
-                        color = colorScheme.onSurface
+                        color = Color.White
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Tap the + Add village button below to paste your village JSON.",
+                        text = "Copy your village export from Clash of Clans, then open this app or tap 'Paste update' to add your village.",
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(18.dp))
+                    ClashBevelButton(
+                        text = "Paste from clipboard",
+                        onClick = onPasteFromClipboardClick,
+                        style = ClashButtonStyle.GREEN,
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
                     )
                 }
             }
         } else {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 villages.forEachIndexed { idx, village ->
                     VillageSummaryRowCard(
@@ -135,69 +151,82 @@ fun VillageSummaryRowCard(
     val earliest = allActiveUpgrades.minByOrNull { it.finishEpochSeconds(baseEpochSeconds) }
     val isUninitialized = village.pastedAtEpochSeconds == 0L && village.rawJson.isBlank()
 
-    ClashPanelCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            ),
-        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp)
+    ClashBevelCard(
+        onClick = onClick,
+        onLongClick = onLongClick
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = village.username,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold
-                ),
-                color = colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 12.dp)
-            )
+        // Left: Village name in bold dark chocolate ink Titan One
+        Text(
+            text = village.username,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Black
+            ),
+            color = Color(0xFF261D15),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 12.dp)
+        )
 
-            if (isUninitialized) {
+        // Right: Status
+        if (isUninitialized) {
+            Text(
+                text = "Tap to paste",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = colorScheme.onSurfaceVariant
+            )
+        } else if (freeDurationSeconds != null) {
+            val isFresh = freeDurationSeconds < 60L
+            val (statusTitle, statusSubtitle) = if (isFresh) {
+                "Free" to "now"
+            } else {
+                "Idle for" to TimeFormatters.formatCompactDuration(freeDurationSeconds)
+            }
+            Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "Tap to paste",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = colorScheme.onSurfaceVariant
-                )
-            } else if (freeDurationSeconds != null) {
-                val freeTimeLabel = if (freeDurationSeconds <= 0L) {
-                    "now"
-                } else {
-                    TimeFormatters.formatCompactDuration(freeDurationSeconds)
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "free",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
-                        color = colorScheme.error
-                    )
-                    Text(
-                        text = freeTimeLabel,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                        color = colorScheme.error
-                    )
-                }
-            } else if (earliest != null) {
-                val finishEpoch = earliest.finishEpochSeconds(baseEpochSeconds)
-                Text(
-                    text = TimeFormatters.formatShortClockTime(finishEpoch, nowEpochSeconds),
+                    text = statusTitle,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.ExtraBold
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Black
                     ),
-                    color = colorScheme.tertiary,
-                    textAlign = TextAlign.End
+                    color = ClashRed
+                )
+                Text(
+                    text = statusSubtitle,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = ClashRed
+                )
+            }
+        } else if (earliest != null) {
+            val finishEpoch = earliest.finishEpochSeconds(baseEpochSeconds)
+            val remaining = earliest.remainingSeconds(baseEpochSeconds, nowEpochSeconds)
+            val formattedClock = TimeFormatters.formatClockTimeOnly(finishEpoch)
+            val relativeLabel = when {
+                remaining <= 0L -> "now"
+                remaining < 86400L -> "in ${TimeFormatters.formatCompactDuration(remaining)}"
+                else -> TimeFormatters.formatCompactDuration(remaining)
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = formattedClock,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Black
+                    ),
+                    color = ClashGreen
+                )
+                Text(
+                    text = relativeLabel,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = ClashGreen
                 )
             }
         }

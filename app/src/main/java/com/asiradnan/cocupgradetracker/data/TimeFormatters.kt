@@ -44,6 +44,14 @@ object TimeFormatters {
         }
     }
 
+    fun formatClockTimeOnly(
+        epochSeconds: Long,
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): String {
+        val zdt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), zoneId)
+        return zdt.format(shortTimeFormatter).lowercase(Locale.getDefault())
+    }
+
     fun formatShortClockTime(
         finishEpochSeconds: Long,
         nowEpochSeconds: Long,
@@ -83,11 +91,30 @@ object TimeFormatters {
     fun formatRelativeAgo(elapsedSeconds: Long): String {
         val safeSec = max(0L, elapsedSeconds)
         return when {
-            safeSec < 10L -> "just now"
-            safeSec < 60L -> "${safeSec}s ago"
+            safeSec < 60L -> "just now"
             safeSec < 3600L -> "${safeSec / 60L}m ago"
             safeSec < 86400L -> "${safeSec / 3600L}h ago"
             else -> "${safeSec / 86400L}d ago"
+        }
+    }
+
+    fun formatPastedClockTime(
+        pastedAtEpochSeconds: Long,
+        nowEpochSeconds: Long,
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): String {
+        if (pastedAtEpochSeconds <= 0L) return ""
+        val pastedZdt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(pastedAtEpochSeconds), zoneId)
+        val nowZdt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(nowEpochSeconds), zoneId)
+        val pastedDate = pastedZdt.toLocalDate()
+        val today = nowZdt.toLocalDate()
+        val clockStr = pastedZdt.format(shortTimeFormatter).lowercase(Locale.getDefault())
+
+        return when {
+            pastedDate == today -> "Today at $clockStr"
+            pastedDate == today.minusDays(1) -> "Yesterday at $clockStr"
+            pastedDate.year == today.year -> "${pastedZdt.format(DateTimeFormatter.ofPattern("MMM d", Locale.getDefault()))} at $clockStr"
+            else -> "${pastedZdt.format(DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.getDefault()))} at $clockStr"
         }
     }
 

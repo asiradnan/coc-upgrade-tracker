@@ -2,9 +2,11 @@ package com.asiradnan.cocupgradetracker.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -186,6 +188,9 @@ fun ClashOutlinedText(
     outlineColor: Color = ClashInkOutline,
     outlineWidth: Dp = Dp.Unspecified,
     dropShadow: Boolean = true,
+    shadowOffset: Dp = 0.6.dp,
+    shadowAlpha: Float = 0.28f,
+    shadowBlurRadius: Dp = 0.6.dp,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Clip,
     textAlign: TextAlign? = null
@@ -196,12 +201,12 @@ fun ClashOutlinedText(
             outlineWidth.toPx()
         } else {
             val fontSize = if (style.fontSize.isSpecified) style.fontSize else 14.sp
-            (fontSize.toPx() * 0.135f).coerceIn(1.5.dp.toPx(), 2.6.dp.toPx())
+            (fontSize.toPx() * 0.09f).coerceIn(1.0.dp.toPx(), 1.8.dp.toPx())
         }
         val shadow = Shadow(
-            color = outlineColor,
-            offset = Offset(0f, 1.8.dp.toPx()),
-            blurRadius = 0.5.dp.toPx()
+            color = outlineColor.copy(alpha = shadowAlpha),
+            offset = Offset(0f, shadowOffset.toPx()),
+            blurRadius = shadowBlurRadius.toPx()
         )
         // Stroke is centered on the glyph edge and the fill hides the inner half
         (visibleOutlinePx * 2f) to shadow
@@ -264,7 +269,10 @@ private fun Modifier.clashBevelBackground(
     palette: BevelPalette,
     isPressed: Boolean,
     enabled: Boolean,
-    cornerRadiusDp: Dp = 10.dp
+    cornerRadiusDp: Dp = 10.dp,
+    showGlossPill: Boolean = true,
+    shadowOffsetDp: Dp = 1.5.dp,
+    shadowAlpha: Float = 0.16f
 ): Modifier = this.drawWithContent {
     val cornerPx = cornerRadiusDp.toPx()
     val strokePx = 2.dp.toPx()
@@ -274,8 +282,8 @@ private fun Modifier.clashBevelBackground(
     // 1. Soft outer drop shadow underneath button on the light stone panel
     if (!isPressed) {
         drawRoundRect(
-            color = Color(0x33000000),
-            topLeft = Offset(0f, 2.dp.toPx()),
+            color = Color.Black.copy(alpha = shadowAlpha),
+            topLeft = Offset(0f, shadowOffsetDp.toPx()),
             size = size,
             cornerRadius = CornerRadius(cornerPx, cornerPx)
         )
@@ -303,24 +311,43 @@ private fun Modifier.clashBevelBackground(
         cornerRadius = CornerRadius(bodyCorner, bodyCorner)
     )
 
-    // 4. Upper-half inset rounded gloss pill (signature CoC Settings button highlight)
-    if (enabled && bodyHeight > 6f) {
-        val glossInsetX = 3.5.dp.toPx()
-        val glossInsetTop = 2.5.dp.toPx()
-        val glossWidth = (size.width - strokePx - glossInsetX * 2f).coerceAtLeast(0f)
-        val glossHeight = (bodyHeight * 0.46f).coerceAtLeast(0f)
-        val glossCorner = (bodyCorner - 2.dp.toPx()).coerceAtLeast(2f)
+    // 4. Inset gloss / highlight
+    if (enabled && bodyHeight > 4f) {
+        if (showGlossPill) {
+            val glossInsetX = 3.5.dp.toPx()
+            val glossInsetTop = 2.5.dp.toPx()
+            val glossWidth = (size.width - strokePx - glossInsetX * 2f).coerceAtLeast(0f)
+            val glossHeight = (bodyHeight * 0.46f).coerceAtLeast(0f)
+            val glossCorner = (bodyCorner - 2.dp.toPx()).coerceAtLeast(2f)
 
-        drawRoundRect(
-            brush = Brush.verticalGradient(
-                colors = listOf(palette.glossTop, palette.glossBottom),
-                startY = halfStroke + glossInsetTop,
-                endY = halfStroke + glossInsetTop + glossHeight
-            ),
-            topLeft = Offset(halfStroke + glossInsetX, halfStroke + glossInsetTop),
-            size = Size(glossWidth, glossHeight),
-            cornerRadius = CornerRadius(glossCorner, glossCorner)
-        )
+            drawRoundRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(palette.glossTop, palette.glossBottom),
+                    startY = halfStroke + glossInsetTop,
+                    endY = halfStroke + glossInsetTop + glossHeight
+                ),
+                topLeft = Offset(halfStroke + glossInsetX, halfStroke + glossInsetTop),
+                size = Size(glossWidth, glossHeight),
+                cornerRadius = CornerRadius(glossCorner, glossCorner)
+            )
+        } else {
+            // Sleek, clean top-edge glass shine for icon buttons (clean, high-contrast, no awkward white block)
+            val highlightHeight = 3.dp.toPx().coerceAtMost(bodyHeight * 0.25f)
+            drawRoundRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.28f),
+                        Color.White.copy(alpha = 0.05f),
+                        Color.Transparent
+                    ),
+                    startY = halfStroke,
+                    endY = halfStroke + highlightHeight
+                ),
+                topLeft = Offset(halfStroke, halfStroke),
+                size = Size(size.width - strokePx, highlightHeight),
+                cornerRadius = CornerRadius(bodyCorner, bodyCorner)
+            )
+        }
     }
 
     // 5. Crisp outer black outline
@@ -433,7 +460,10 @@ fun ClashBevelIconButton(
                 palette = palette,
                 isPressed = isPressed,
                 enabled = enabled,
-                cornerRadiusDp = 10.dp
+                cornerRadiusDp = 10.dp,
+                showGlossPill = false,
+                shadowOffsetDp = 1.0.dp,
+                shadowAlpha = 0.12f
             )
             .clickable(
                 interactionSource = interactionSource,
@@ -444,11 +474,123 @@ fun ClashBevelIconButton(
             .padding(bottom = bottomLipPadding),
         contentAlignment = Alignment.Center
     ) {
+        // Subtle drop shadow behind the white icon for embossed 3D tactile depth
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color(0x4D000000),
+            modifier = Modifier
+                .size(20.dp)
+                .padding(top = 1.dp)
+        )
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = palette.contentColor,
             modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+/**
+ * Tactile Clash bevel card designed for interactive list rows (e.g. Village summary cards).
+ * Features a warm cream stone face, darker 3D bevel bottom lip, soft drop shadow, and
+ * in-game press down animation on tap.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ClashBevelCard(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    backgroundColor: Color = Color(0xFFFAF8F5),
+    bottomLipColor: Color = Color(0xFFC7C3B7),
+    borderColor: Color = ClashInkOutline,
+    shape: RoundedCornerShape = RoundedCornerShape(12.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+    content: @Composable RowScope.() -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val topOffset = if (isPressed) 2.dp else 0.dp
+    val bottomLipPadding = if (isPressed) 1.dp else 3.5.dp
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = topOffset)
+            .clip(shape)
+            .drawWithContent {
+                val cornerPx = 12.dp.toPx()
+                val strokePx = 2.dp.toPx()
+                val halfStroke = strokePx / 2f
+                val lipPx = if (isPressed) 1.5.dp.toPx() else 3.5.dp.toPx()
+
+                // Soft outer drop shadow underneath
+                if (!isPressed) {
+                    drawRoundRect(
+                        color = Color(0x22000000),
+                        topLeft = Offset(0f, 2.dp.toPx()),
+                        size = size,
+                        cornerRadius = CornerRadius(cornerPx, cornerPx)
+                    )
+                }
+
+                // Full-card dark bevel lip fill
+                drawRoundRect(
+                    color = bottomLipColor,
+                    topLeft = Offset(halfStroke, halfStroke),
+                    size = Size(size.width - strokePx, size.height - strokePx),
+                    cornerRadius = CornerRadius(cornerPx, cornerPx)
+                )
+
+                // Main body face
+                val bodyHeight = (size.height - strokePx - lipPx).coerceAtLeast(0f)
+                val bodyCorner = (cornerPx - halfStroke).coerceAtLeast(2f)
+                drawRoundRect(
+                    color = backgroundColor,
+                    topLeft = Offset(halfStroke, halfStroke),
+                    size = Size(size.width - strokePx, bodyHeight),
+                    cornerRadius = CornerRadius(bodyCorner, bodyCorner)
+                )
+
+                // Subtle top edge gloss line
+                if (bodyHeight > 4f) {
+                    drawRoundRect(
+                        color = Color(0x45FFFFFF),
+                        topLeft = Offset(halfStroke + 2.dp.toPx(), halfStroke + 1.dp.toPx()),
+                        size = Size((size.width - strokePx - 4.dp.toPx()).coerceAtLeast(0f), 2.5.dp.toPx()),
+                        cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+                    )
+                }
+
+                // Crisp dark border
+                drawRoundRect(
+                    color = borderColor,
+                    topLeft = Offset(halfStroke, halfStroke),
+                    size = Size(size.width - strokePx, size.height - strokePx),
+                    cornerRadius = CornerRadius(cornerPx, cornerPx),
+                    style = Stroke(width = strokePx)
+                )
+
+                drawContent()
+            }
+            .combinedClickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
+            .padding(bottom = bottomLipPadding)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(contentPadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            content = content
         )
     }
 }
@@ -496,7 +638,11 @@ fun ClashPanelCard(
                     ClashOutlinedText(
                         text = headerTitle,
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color.White
+                        color = Color.White,
+                        outlineWidth = 1.2.dp,
+                        shadowOffset = 0.6.dp,
+                        shadowAlpha = 0.28f,
+                        shadowBlurRadius = 0.6.dp
                     )
                     if (headerTrailingContent != null) {
                         Row(
@@ -884,6 +1030,10 @@ fun ClashUpgradeCapsuleBar(
                 text = titleText,
                 style = MaterialTheme.typography.titleSmall,
                 color = titleColor,
+                outlineWidth = 1.0.dp,
+                shadowOffset = 0.5.dp,
+                shadowAlpha = 0.22f,
+                shadowBlurRadius = 0.5.dp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
@@ -899,6 +1049,10 @@ fun ClashUpgradeCapsuleBar(
                     text = rightText,
                     style = MaterialTheme.typography.titleSmall,
                     color = rightTextColor,
+                    outlineWidth = 1.0.dp,
+                    shadowOffset = 0.5.dp,
+                    shadowAlpha = 0.22f,
+                    shadowBlurRadius = 0.5.dp,
                     maxLines = 1
                 )
                 if (showStopwatch) {

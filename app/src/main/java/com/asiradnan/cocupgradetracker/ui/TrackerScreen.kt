@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,6 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
 import com.asiradnan.cocupgradetracker.data.repository.VillageRepository
 import com.asiradnan.cocupgradetracker.ui.components.AddVillageDialog
@@ -85,6 +88,27 @@ fun TrackerScreen() {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
+    val activity = context as? ComponentActivity
+    val lifecycle = activity?.lifecycle
+
+    // Auto-detect CoC export JSON in clipboard and auto-paste when app opens or returns from Clash of Clans
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                val clip = readClipboardText()
+                val nowSec = System.currentTimeMillis() / 1000L
+                val outcome = viewModel.autoPasteClipboardIfNew(clip, nowSec)
+                if (outcome is PasteOutcome.Success) {
+                    Toast.makeText(context, outcome.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        lifecycle?.addObserver(observer)
+        onDispose {
+            lifecycle?.removeObserver(observer)
+        }
+    }
+
     val villageCount = villages.size
     val pagerPageCount = if (villageCount > 1) LOOP_PAGER_COUNT else 1
     val initialPagerPage = remember(villageCount, isHomePage) {
@@ -131,14 +155,7 @@ fun TrackerScreen() {
             if (showingHome) {
                 HomeTopAppBar(
                     villageCount = villages.size,
-                    onGlobalPasteClick = {
-                        val nowSec = System.currentTimeMillis() / 1000L
-                        val outcome = viewModel.pasteUpdateIntelligent(
-                            clipText = readClipboardText(),
-                            nowEpochSeconds = nowSec
-                        )
-                        showOutcomeToast(outcome)
-                    }
+                    onAddVillageClick = { viewModel.setShowAddVillageDialog(true) }
                 )
             } else {
                 VillageDetailTopAppBar(
@@ -152,6 +169,18 @@ fun TrackerScreen() {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             }
                         }
+                    },
+                    onSelectVillageClick = { targetIdx ->
+                        if (villages.size > 1 && targetIdx in villages.indices) {
+                            viewModel.selectVillage(targetIdx)
+                            val currentMod = Math.floorMod(pagerState.currentPage, villages.size)
+                            if (currentMod != targetIdx) {
+                                val forwardDelta = Math.floorMod(targetIdx - currentMod, villages.size)
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage + forwardDelta)
+                                }
+                            }
+                        }
                     }
                 )
             }
@@ -159,11 +188,17 @@ fun TrackerScreen() {
         floatingActionButton = {
             if (showingHome) {
                 ClashBevelButton(
-                    text = "Add village",
-                    leadingIcon = Icons.Default.Add,
-                    onClick = { viewModel.setShowAddVillageDialog(true) },
+                    text = "Paste Update",
+                    onClick = {
+                        val nowSec = System.currentTimeMillis() / 1000L
+                        val outcome = viewModel.pasteUpdateIntelligent(
+                            clipText = readClipboardText(),
+                            nowEpochSeconds = nowSec
+                        )
+                        showOutcomeToast(outcome)
+                    },
                     style = ClashButtonStyle.GREEN,
-                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
                 )
             }
         }
@@ -177,7 +212,15 @@ fun TrackerScreen() {
                     .padding(innerPadding),
                 onSelectVillage = { idx -> viewModel.selectVillage(idx) },
                 onSwipeToDetail = { viewModel.openDetailFromSwipe() },
-                onDeleteVillageClick = { idx -> viewModel.requestDeleteVillage(idx) }
+                onDeleteVillageClick = { idx -> viewModel.requestDeleteVillage(idx) },
+                onPasteFromClipboardClick = {
+                    val nowSec = System.currentTimeMillis() / 1000L
+                    val outcome = viewModel.pasteUpdateIntelligent(
+                        clipText = readClipboardText(),
+                        nowEpochSeconds = nowSec
+                    )
+                    showOutcomeToast(outcome)
+                }
             )
         } else {
             BackHandler(enabled = !isHomePage) {

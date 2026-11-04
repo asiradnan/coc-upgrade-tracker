@@ -1,6 +1,8 @@
 package com.asiradnan.cocupgradetracker.ui.detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -9,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -18,9 +22,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.asiradnan.cocupgradetracker.data.TimeFormatters
 import com.asiradnan.cocupgradetracker.data.UpgradeItem
 import com.asiradnan.cocupgradetracker.data.VillageData
@@ -28,8 +35,12 @@ import com.asiradnan.cocupgradetracker.ui.components.ClashBevelButton
 import com.asiradnan.cocupgradetracker.ui.components.ClashButtonStyle
 import com.asiradnan.cocupgradetracker.ui.components.ClashCapsuleFillStyle
 import com.asiradnan.cocupgradetracker.ui.components.ClashCrestBadge
+import com.asiradnan.cocupgradetracker.ui.components.ClashEtchedDivider
+import com.asiradnan.cocupgradetracker.ui.components.ClashOutlinedText
 import com.asiradnan.cocupgradetracker.ui.components.ClashPanelCard
 import com.asiradnan.cocupgradetracker.ui.components.ClashUpgradeCapsuleBar
+import com.asiradnan.cocupgradetracker.ui.theme.ClashGreenBright
+import com.asiradnan.cocupgradetracker.ui.theme.ClashRed
 import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderBuilderBase
 import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderTownHall
 import kotlin.math.max
@@ -53,15 +64,9 @@ fun VillageDetailScreen(
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val lastUpdatedText = if (village.pastedAtEpochSeconds > 0L) {
-            val elapsed = max(0L, nowEpochSeconds - village.pastedAtEpochSeconds)
-            "Updated ${TimeFormatters.formatRelativeAgo(elapsed)}"
-        } else {
-            "Not updated yet"
-        }
-
         LastUpdatedAndPasteRow(
-            lastUpdatedText = lastUpdatedText,
+            pastedAtEpochSeconds = village.pastedAtEpochSeconds,
+            nowEpochSeconds = nowEpochSeconds,
             onPasteClick = onPasteClick
         )
 
@@ -75,7 +80,9 @@ fun VillageDetailScreen(
             nowEpochSeconds = nowEpochSeconds
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
+        ClashEtchedDivider()
+        Spacer(modifier = Modifier.height(14.dp))
 
         BaseSectionCard(
             title = "Townhall",
@@ -89,7 +96,9 @@ fun VillageDetailScreen(
             nowEpochSeconds = nowEpochSeconds
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
+        ClashEtchedDivider()
+        Spacer(modifier = Modifier.height(14.dp))
 
         BaseSectionCard(
             title = "Builder Base",
@@ -107,7 +116,9 @@ fun VillageDetailScreen(
             nowEpochSeconds = nowEpochSeconds
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(14.dp))
+        ClashEtchedDivider()
+        Spacer(modifier = Modifier.height(18.dp))
 
         ClashBevelButton(
             text = "Delete village",
@@ -120,27 +131,78 @@ fun VillageDetailScreen(
 
 @Composable
 private fun LastUpdatedAndPasteRow(
-    lastUpdatedText: String,
+    pastedAtEpochSeconds: Long,
+    nowEpochSeconds: Long,
     onPasteClick: () -> Unit
 ) {
-    val colorScheme = MaterialTheme.colorScheme
+    val isUpdated = pastedAtEpochSeconds > 0L
+    val elapsed = if (isUpdated) max(0L, nowEpochSeconds - pastedAtEpochSeconds) else 0L
+
+    val statusDotColor = when {
+        !isUpdated -> Color(0xFF9E9E9E)
+        elapsed < 3600L * 4 -> ClashGreenBright
+        elapsed < 86400L -> Color(0xFFE59412)
+        else -> Color(0xFF88847C)
+    }
+
+    val primaryText = if (isUpdated) {
+        "Updated ${TimeFormatters.formatRelativeAgo(elapsed)}"
+    } else {
+        "Not updated yet"
+    }
+
+    val secondaryText = if (isUpdated) {
+        TimeFormatters.formatPastedClockTime(pastedAtEpochSeconds, nowEpochSeconds)
+    } else {
+        "Paste village JSON to start"
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = lastUpdatedText,
-            style = MaterialTheme.typography.bodySmall,
-            color = colorScheme.onBackground.copy(alpha = 0.82f),
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.weight(1f)
-        )
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(statusDotColor)
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text(
+                    text = primaryText,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.5.sp
+                    ),
+                    color = Color(0xFF261D15),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = secondaryText,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 11.5.sp
+                    ),
+                    color = Color(0xFF6B655C),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
 
         ClashBevelButton(
-            text = "Paste update",
+            text = "Paste Update",
             onClick = onPasteClick,
-            style = ClashButtonStyle.GREEN
+            style = ClashButtonStyle.GREEN,
+            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
         )
     }
 }
@@ -151,7 +213,6 @@ private fun EarliestFreeOrAlreadyFreeBox(
     baseEpochSeconds: Long,
     nowEpochSeconds: Long
 ) {
-    val colorScheme = MaterialTheme.colorScheme
     val freeDurationSeconds = village.getFreeDurationSeconds(nowEpochSeconds)
 
     val allActiveUpgrades = (
@@ -170,33 +231,50 @@ private fun EarliestFreeOrAlreadyFreeBox(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (freeDurationSeconds != null) {
-                val freeTimeLabel = if (freeDurationSeconds <= 0L) {
-                    "now"
+                val isFresh = freeDurationSeconds < 60L
+                val (freeLabel, timeLabel) = if (isFresh) {
+                    "Free" to "now"
                 } else {
-                    TimeFormatters.formatCompactDuration(freeDurationSeconds)
+                    "Idle for" to TimeFormatters.formatCompactDuration(freeDurationSeconds)
                 }
-                Text(
-                    text = "Free",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
-                    color = colorScheme.error
+                ClashOutlinedText(
+                    text = freeLabel,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = ClashRed,
+                    outlineWidth = 1.0.dp,
+                    shadowOffset = 0.5.dp,
+                    shadowAlpha = 0.22f,
+                    shadowBlurRadius = 0.5.dp
                 )
-                Text(
-                    text = freeTimeLabel,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
-                    color = colorScheme.error
+                ClashOutlinedText(
+                    text = timeLabel,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = ClashRed,
+                    outlineWidth = 1.1.dp,
+                    shadowOffset = 0.5.dp,
+                    shadowAlpha = 0.22f,
+                    shadowBlurRadius = 0.5.dp
                 )
             } else if (earliest != null) {
                 val finishEpoch = earliest.finishEpochSeconds(baseEpochSeconds)
                 val formattedClock = TimeFormatters.formatShortClockTime(finishEpoch, nowEpochSeconds)
-                Text(
+                ClashOutlinedText(
                     text = "Earliest free",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
-                    color = colorScheme.onSurface
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    outlineWidth = 1.0.dp,
+                    shadowOffset = 0.5.dp,
+                    shadowAlpha = 0.22f,
+                    shadowBlurRadius = 0.5.dp
                 )
-                Text(
+                ClashOutlinedText(
                     text = formattedClock,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
-                    color = colorScheme.tertiary
+                    style = MaterialTheme.typography.titleLarge,
+                    color = ClashGreenBright,
+                    outlineWidth = 1.1.dp,
+                    shadowOffset = 0.5.dp,
+                    shadowAlpha = 0.22f,
+                    shadowBlurRadius = 0.5.dp
                 )
             }
         }
@@ -230,6 +308,8 @@ private fun BaseSectionCard(
     ClashPanelCard(
         headerTitle = title,
         headerColor = headerColor,
+        containerColor = Color(0xFF634B3A),
+        borderColor = Color(0xFF2E2219),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
         headerTrailingContent = {
             if (levelBadge != null) {
@@ -339,13 +419,13 @@ private fun UpgradeSlotRow(
         }
         val freeText = if (freedEpoch > 0L) {
             val elapsedFree = max(0L, nowEpochSeconds - freedEpoch)
-            if (elapsedFree > 0L) {
-                "Free ${TimeFormatters.formatCompactDuration(elapsedFree)}"
+            if (elapsedFree >= 60L) {
+                "Idle for ${TimeFormatters.formatCompactDuration(elapsedFree)}"
             } else {
-                "Free"
+                "Free now"
             }
         } else {
-            "Free"
+            "Free now"
         }
 
         ClashUpgradeCapsuleBar(
