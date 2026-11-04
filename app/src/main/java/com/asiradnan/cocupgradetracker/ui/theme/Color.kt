@@ -2,25 +2,36 @@ package com.asiradnan.cocupgradetracker.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Clash of Clans inspired palette
-val ClashGold = Color(0xFFFFC93C)
-val ClashGoldDark = Color(0xFFD99B00)
-val ClashAmber = Color(0xFFFF9800)
+// Warm obsidian & natural accent palette
+val ClashGold = Color(0xFFE5B84B)
+val OnClashGold = Color(0xFF1C1300)
+val ClashGoldContainer = Color(0xFF3A2E14)
+val OnClashGoldContainer = Color(0xFFF7DFA0)
 
-val ElixirPurple = Color(0xFFD946EF)
-val ElixirDeep = Color(0xFF86198F)
+val ElixirPurple = Color(0xFFB583D6)
+val OnElixirPurple = Color(0xFF230F33)
+val ElixirContainer = Color(0xFF332042)
+val OnElixirContainer = Color(0xFFE9D2F7)
 
-val BuilderEmerald = Color(0xFF22C55E)
-val BuilderEmeraldDark = Color(0xFF15803D)
+val BuilderEmerald = Color(0xFF52B788)
+val OnBuilderEmerald = Color(0xFF082919)
+val BuilderEmeraldContainer = Color(0xFF193829)
+val OnBuilderEmeraldContainer = Color(0xFFB7E4C7)
 
-val GoblinGreen = Color(0xFF84CC16)
-val HeroCyan = Color(0xFF38BDF8)
-val TrapCoral = Color(0xFFF97316)
+val TrapCoral = Color(0xFFD96B52)
+val OnTrapCoral = Color(0xFF2D0B04)
+val TrapCoralContainer = Color(0xFF3D1D16)
+val OnTrapCoralContainer = Color(0xFFF7C6BB)
 
-val DarkBackground = Color(0xFF0F141C)
-val DarkSurface = Color(0xFF18202C)
-val DarkSurfaceVariant = Color(0xFF222D3D)
-val DarkBorder = Color(0xFF2E3C52)
+val DarkBackground = Color(0xFF121110)
+val DarkSurfaceLowest = Color(0xFF0E0D0C)
+val DarkSurfaceLow = Color(0xFF171513)
+val DarkSurface = Color(0xFF1C1A17)
+val DarkSurfaceVariant = Color(0xFF26231F)
+val DarkSurfaceHighest = Color(0xFF302C27)
 
-val TextPrimary = Color(0xFFF8FAFC)
-val TextSecondary = Color(0xFF94A3B8)
+val DarkOutline = Color(0xFF453F38)
+val DarkOutlineVariant = Color(0xFF2E2A25)
+
+val TextPrimary = Color(0xFFF3EFEA)
+val TextSecondary = Color(0xFF9A9287)

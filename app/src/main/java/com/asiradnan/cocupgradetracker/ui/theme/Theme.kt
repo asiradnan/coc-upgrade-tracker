@@ -5,22 +5,39 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val ClashDarkColorScheme = darkColorScheme(
     primary = ClashGold,
-    onPrimary = Color(0xFF1C1300),
+    onPrimary = OnClashGold,
+    primaryContainer = ClashGoldContainer,
+    onPrimaryContainer = ClashGold,
     secondary = ElixirPurple,
-    onSecondary = Color.White,
+    onSecondary = OnElixirPurple,
+    secondaryContainer = ElixirContainer,
+    onSecondaryContainer = ElixirPurple,
     tertiary = BuilderEmerald,
+    onTertiary = OnBuilderEmerald,
+    tertiaryContainer = BuilderEmeraldContainer,
+    onTertiaryContainer = BuilderEmerald,
+    error = TrapCoral,
+    onError = OnTrapCoral,
+    errorContainer = TrapCoralContainer,
+    onErrorContainer = OnTrapCoralContainer,
     background = DarkBackground,
-    surface = DarkSurface,
-    surfaceVariant = DarkSurfaceVariant,
     onBackground = TextPrimary,
+    surface = DarkSurface,
     onSurface = TextPrimary,
-    onSurfaceVariant = TextSecondary
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = TextSecondary,
+    surfaceContainerLowest = DarkSurfaceLowest,
+    surfaceContainerLow = DarkSurfaceLow,
+    surfaceContainer = DarkSurface,
+    surfaceContainerHigh = DarkSurfaceVariant,
+    surfaceContainerHighest = DarkSurfaceHighest,
+    outline = DarkOutline,
+    outlineVariant = DarkOutlineVariant
 )
 
 @Composable
@@ -44,6 +61,7 @@ fun COCUpgradeTrackerTheme(
     MaterialTheme(
         colorScheme = ClashDarkColorScheme,
         typography = Typography,
+        shapes = Shapes,
         content = content
     )
 }

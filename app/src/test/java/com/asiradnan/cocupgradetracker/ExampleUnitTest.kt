@@ -46,5 +46,10 @@ class ExampleUnitTest {
         assertEquals("3m ago", TimeFormatters.formatRelativeAgo(180L))
         assertEquals("just now", TimeFormatters.formatRelativeAgo(3L))
         assertEquals(2, village.totalBuilderBaseBuilders)
+        assertEquals(10, village.totalSlotCount)
+        assertEquals(0, village.getFreeSlotCount(exportTime))
+        assertEquals(1, village.getFreeSlotCount(exportTime + 8000L))
+        assertTrue(earliestBuilder.progressFraction(exportTime, exportTime, 345600L) > 0.9f)
+        assertEquals(1f, earliestBuilder.progressFraction(exportTime, exportTime + 8000L, 345600L), 0.001f)
     }
 }
