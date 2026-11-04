@@ -2,23 +2,20 @@ package com.asiradnan.cocupgradetracker.ui.components
 
 import android.content.ClipboardManager
 import android.content.Context
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,10 +23,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 
 @Composable
 fun DeleteVillageConfirmDialog(
@@ -39,55 +38,37 @@ fun DeleteVillageConfirmDialog(
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = MaterialTheme.shapes.extraLarge,
-        containerColor = colorScheme.surface,
-        titleContentColor = colorScheme.onSurface,
-        textContentColor = colorScheme.onSurfaceVariant,
-        title = {
-            Text(
-                text = "Delete village?",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
-        },
-        text = {
+    Dialog(onDismissRequest = onDismiss) {
+        ClashPanelCard(
+            headerTitle = "Delete Village?",
+            headerColor = Color(0xFF7D241C)
+        ) {
             Text(
                 text = "\"$villageName\" and its tracked upgrade timers will be removed from this device.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = colorScheme.onSurfaceVariant
+                color = colorScheme.onSurface
             )
-        },
-        confirmButton = {
-            Button(
-                onClick = onConfirmDelete,
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.error,
-                    contentColor = colorScheme.onError
-                )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Delete",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = colorScheme.onSurfaceVariant
-                )
-            ) {
-                Text(
+                ClashBevelButton(
                     text = "Cancel",
-                    style = MaterialTheme.typography.labelLarge
+                    onClick = onDismiss,
+                    style = ClashButtonStyle.NEUTRAL
+                )
+                ClashBevelButton(
+                    text = "Delete",
+                    onClick = onConfirmDelete,
+                    style = ClashButtonStyle.RED
                 )
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -112,33 +93,26 @@ fun AddVillageDialog(
             ?.toString()
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = MaterialTheme.shapes.extraLarge,
-        containerColor = colorScheme.surface,
-        titleContentColor = colorScheme.onSurface,
-        textContentColor = colorScheme.onSurface,
-        title = {
-            Text(
-                text = "Add village",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
-        },
-        text = {
+    Dialog(onDismissRequest = onDismiss) {
+        ClashPanelCard(
+            headerTitle = "Add Village",
+            headerColor = Color(0xFF575045)
+        ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Surface(
                     shape = MaterialTheme.shapes.medium,
-                    color = colorScheme.surfaceVariant
+                    color = colorScheme.surfaceVariant,
+                    border = BorderStroke(1.dp, colorScheme.outlineVariant)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
                         Text(
                             text = "Where to get your village JSON",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
                             color = colorScheme.primary
                         )
                         Text(
@@ -163,8 +137,10 @@ fun AddVillageDialog(
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = colorScheme.surfaceContainerLow,
+                        unfocusedContainerColor = colorScheme.surfaceContainerLow,
                         focusedBorderColor = colorScheme.primary,
-                        unfocusedBorderColor = colorScheme.outlineVariant,
+                        unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f),
                         focusedLabelColor = colorScheme.primary,
                         unfocusedLabelColor = colorScheme.onSurfaceVariant,
                         cursorColor = colorScheme.primary
@@ -178,10 +154,11 @@ fun AddVillageDialog(
                 ) {
                     Text(
                         text = "Village export JSON",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = colorScheme.onSurface
                     )
-                    FilledTonalButton(
+                    ClashBevelButton(
+                        text = "Paste clipboard",
                         onClick = {
                             val clip = readClipboardText()
                             if (!clip.isNullOrBlank()) {
@@ -191,18 +168,9 @@ fun AddVillageDialog(
                                 errorMsg = "Clipboard is empty"
                             }
                         },
-                        shape = MaterialTheme.shapes.small,
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = colorScheme.primaryContainer,
-                            contentColor = colorScheme.onPrimaryContainer
-                        )
-                    ) {
-                        Text(
-                            text = "Paste clipboard",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
-                        )
-                    }
+                        style = ClashButtonStyle.BLUE,
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                    )
                 }
 
                 OutlinedTextField(
@@ -222,14 +190,17 @@ fun AddVillageDialog(
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp),
+                        .height(115.dp),
                     textStyle = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = FontFamily.Monospace,
                         color = colorScheme.onSurface
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = colorScheme.surfaceContainerLow,
+                        unfocusedContainerColor = colorScheme.surfaceContainerLow,
+                        errorContainerColor = colorScheme.surfaceContainerLow,
                         focusedBorderColor = colorScheme.primary,
-                        unfocusedBorderColor = colorScheme.outlineVariant,
+                        unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f),
                         errorBorderColor = colorScheme.error,
                         cursorColor = colorScheme.primary
                     )
@@ -239,51 +210,41 @@ fun AddVillageDialog(
                     Text(
                         text = errorMsg!!,
                         color = colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ClashBevelButton(
+                        text = "Cancel",
+                        onClick = onDismiss,
+                        style = ClashButtonStyle.NEUTRAL
+                    )
+                    ClashBevelButton(
+                        text = "Add village",
+                        onClick = {
+                            val effectiveJson = if (jsonText.isBlank()) {
+                                readClipboardText().orEmpty().also {
+                                    if (it.isNotBlank()) jsonText = it
+                                }
+                            } else {
+                                jsonText
+                            }
+                            val err = onSave(nameText.ifBlank { defaultName }, effectiveJson)
+                            if (err != null) {
+                                errorMsg = err
+                            }
+                        },
+                        style = ClashButtonStyle.GREEN
                     )
                 }
             }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    val effectiveJson = if (jsonText.isBlank()) {
-                        readClipboardText().orEmpty().also {
-                            if (it.isNotBlank()) jsonText = it
-                        }
-                    } else {
-                        jsonText
-                    }
-                    val err = onSave(nameText.ifBlank { defaultName }, effectiveJson)
-                    if (err != null) {
-                        errorMsg = err
-                    }
-                },
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.primary,
-                    contentColor = colorScheme.onPrimary
-                )
-            ) {
-                Text(
-                    text = "Add village",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = colorScheme.onSurfaceVariant
-                )
-            ) {
-                Text(
-                    text = "Cancel",
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
         }
-    )
+    }
 }

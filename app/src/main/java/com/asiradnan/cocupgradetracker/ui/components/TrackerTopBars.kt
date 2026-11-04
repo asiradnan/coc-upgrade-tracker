@@ -13,22 +13,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -47,27 +40,19 @@ fun HomeTopAppBar(
             actionIconContentColor = colorScheme.onBackground
         ),
         title = {
-                Text(
-                    text = "COC Upgrade Tracker",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = colorScheme.onBackground
-                )
+            ClashShadowedText(
+                text = "COC Upgrade Tracker",
+                style = MaterialTheme.typography.titleLarge,
+                color = colorScheme.onBackground
+            )
         },
         actions = {
-            FilledTonalButton(
+            ClashBevelButton(
+                text = "Paste update",
                 onClick = onGlobalPasteClick,
-                modifier = Modifier.padding(end = 12.dp),
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = colorScheme.primaryContainer,
-                    contentColor = colorScheme.onPrimaryContainer
-                )
-            ) {
-                Text(
-                    text = "Paste update",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
-                )
-            }
+                style = ClashButtonStyle.GREEN,
+                modifier = Modifier.padding(end = 12.dp)
+            )
         }
     )
 }
@@ -91,22 +76,19 @@ fun VillageDetailTopAppBar(
             actionIconContentColor = colorScheme.onBackground
         ),
         navigationIcon = {
-            IconButton(
+            ClashBevelIconButton(
+                icon = Icons.Default.Home,
+                contentDescription = "Home",
                 onClick = onHomeClick,
-                modifier = Modifier.padding(start = 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Home,
-                    contentDescription = "Home",
-                    tint = colorScheme.onBackground
-                )
-            }
+                style = ClashButtonStyle.BLUE,
+                modifier = Modifier.padding(start = 10.dp)
+            )
         },
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
+                ClashShadowedText(
                     text = villageName,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge,
                     color = colorScheme.onBackground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -121,11 +103,11 @@ fun VillageDetailTopAppBar(
                             val isSelected = i == selectedIndex
                             Box(
                                 modifier = Modifier
-                                    .size(if (isSelected) 6.dp else 4.dp)
+                                    .size(if (isSelected) 7.dp else 5.dp)
                                     .clip(CircleShape)
                                     .background(
                                         if (isSelected) colorScheme.primary
-                                        else colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+                                        else colorScheme.onBackground.copy(alpha = 0.35f)
                                     )
                             )
                         }
@@ -134,21 +116,14 @@ fun VillageDetailTopAppBar(
             }
         },
         actions = {
-            IconButton(
+            ClashBevelIconButton(
+                icon = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "Next village",
                 onClick = onNextVillageClick,
+                style = ClashButtonStyle.BLUE,
                 enabled = totalVillages > 1,
-                modifier = Modifier.padding(end = 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Next village",
-                    tint = if (totalVillages > 1) {
-                        colorScheme.onBackground
-                    } else {
-                        colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-                    }
-                )
-            }
+                modifier = Modifier.padding(end = 10.dp)
+            )
         }
     )
 }

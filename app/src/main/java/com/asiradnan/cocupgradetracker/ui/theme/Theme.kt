@@ -2,42 +2,42 @@ package com.asiradnan.cocupgradetracker.ui.theme
 
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val ClashDarkColorScheme = darkColorScheme(
+private val ClashSettingsColorScheme = lightColorScheme(
     primary = ClashGold,
     onPrimary = OnClashGold,
     primaryContainer = ClashGoldContainer,
-    onPrimaryContainer = ClashGold,
+    onPrimaryContainer = OnClashGoldContainer,
     secondary = ElixirPurple,
     onSecondary = OnElixirPurple,
     secondaryContainer = ElixirContainer,
-    onSecondaryContainer = ElixirPurple,
-    tertiary = BuilderEmerald,
-    onTertiary = OnBuilderEmerald,
-    tertiaryContainer = BuilderEmeraldContainer,
-    onTertiaryContainer = BuilderEmerald,
-    error = TrapCoral,
-    onError = OnTrapCoral,
-    errorContainer = TrapCoralContainer,
-    onErrorContainer = OnTrapCoralContainer,
-    background = DarkBackground,
-    onBackground = TextPrimary,
-    surface = DarkSurface,
-    onSurface = TextPrimary,
-    surfaceVariant = DarkSurfaceVariant,
-    onSurfaceVariant = TextSecondary,
-    surfaceContainerLowest = DarkSurfaceLowest,
-    surfaceContainerLow = DarkSurfaceLow,
-    surfaceContainer = DarkSurface,
-    surfaceContainerHigh = DarkSurfaceVariant,
-    surfaceContainerHighest = DarkSurfaceHighest,
-    outline = DarkOutline,
-    outlineVariant = DarkOutlineVariant
+    onSecondaryContainer = OnElixirContainer,
+    tertiary = ClashGreen,
+    onTertiary = OnClashGreen,
+    tertiaryContainer = ClashGreenContainer,
+    onTertiaryContainer = OnClashGreenContainer,
+    error = ClashRed,
+    onError = OnClashRed,
+    errorContainer = ClashRedContainer,
+    onErrorContainer = OnClashRedContainer,
+    background = SlateBackground,
+    onBackground = OnSlateBackground,
+    surface = CreamSurface,
+    onSurface = EspressoText,
+    surfaceVariant = CreamSurfaceVariant,
+    onSurfaceVariant = TaupeText,
+    surfaceContainerLowest = SlateSurfaceLowest,
+    surfaceContainerLow = CreamSurfaceLow,
+    surfaceContainer = CreamSurface,
+    surfaceContainerHigh = CreamSurfaceVariant,
+    surfaceContainerHighest = CreamSurfaceHighest,
+    outline = StoneOutline,
+    outlineVariant = SandOutlineVariant
 )
 
 @Composable
@@ -53,13 +53,14 @@ fun COCUpgradeTrackerTheme(
             @Suppress("DEPRECATION")
             window.navigationBarColor = android.graphics.Color.TRANSPARENT
             val insetsController = WindowCompat.getInsetsController(window, view)
+            // Keep light status/nav bar icons against the dark-slate outer backdrop
             insetsController.isAppearanceLightStatusBars = false
             insetsController.isAppearanceLightNavigationBars = false
         }
     }
 
     MaterialTheme(
-        colorScheme = ClashDarkColorScheme,
+        colorScheme = ClashSettingsColorScheme,
         typography = Typography,
         shapes = Shapes,
         content = content

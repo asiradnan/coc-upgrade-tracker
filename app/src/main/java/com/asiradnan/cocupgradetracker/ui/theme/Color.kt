@@ -2,36 +2,52 @@ package com.asiradnan.cocupgradetracker.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Warm obsidian & natural accent palette
-val ClashGold = Color(0xFFE5B84B)
-val OnClashGold = Color(0xFF1C1300)
-val ClashGoldContainer = Color(0xFF3A2E14)
-val OnClashGoldContainer = Color(0xFFF7DFA0)
+// Clash Settings Style Palette: Dark Slate backdrop + Warm Cream panels + Bright Playful Accents
 
-val ElixirPurple = Color(0xFFB583D6)
-val OnElixirPurple = Color(0xFF230F33)
-val ElixirContainer = Color(0xFF332042)
-val OnElixirContainer = Color(0xFFE9D2F7)
+// Backdrop (Dark Slate behind cream panels)
+val SlateBackground = Color(0xFF282B30)
+val SlateSurfaceLowest = Color(0xFF1F2226)
+val OnSlateBackground = Color(0xFFFAF6EE)
 
-val BuilderEmerald = Color(0xFF52B788)
-val OnBuilderEmerald = Color(0xFF082919)
-val BuilderEmeraldContainer = Color(0xFF193829)
-val OnBuilderEmeraldContainer = Color(0xFFB7E4C7)
+// Cream & Parchment Panel Surfaces
+val CreamSurfaceLow = Color(0xFFF8F4EA)
+val CreamSurface = Color(0xFFF3EDE0)
+val CreamSurfaceVariant = Color(0xFFE5DCC8)
+val CreamSurfaceHighest = Color(0xFFD8CEB6)
 
-val TrapCoral = Color(0xFFD96B52)
-val OnTrapCoral = Color(0xFF2D0B04)
-val TrapCoralContainer = Color(0xFF3D1D16)
-val OnTrapCoralContainer = Color(0xFFF7C6BB)
+// Text & Borders on Cream Panels
+val EspressoText = Color(0xFF26211B)
+val TaupeText = Color(0xFF625647)
+val StoneOutline = Color(0xFF6E6353)
+val SandOutlineVariant = Color(0xFFD5CBB4)
 
-val DarkBackground = Color(0xFF121110)
-val DarkSurfaceLowest = Color(0xFF0E0D0C)
-val DarkSurfaceLow = Color(0xFF171513)
-val DarkSurface = Color(0xFF1C1A17)
-val DarkSurfaceVariant = Color(0xFF26231F)
-val DarkSurfaceHighest = Color(0xFF302C27)
+// Clash Gold / Amber (Builders & Primary Highlights)
+val ClashGold = Color(0xFFD98A0B)
+val ClashGoldBright = Color(0xFFFFC933)
+val OnClashGold = Color(0xFF261600)
+val ClashGoldContainer = Color(0xFFFFE09E)
+val OnClashGoldContainer = Color(0xFF593500)
 
-val DarkOutline = Color(0xFF453F38)
-val DarkOutlineVariant = Color(0xFF2E2A25)
+// Clash Elixir Magenta-Purple (Laboratory & Research)
+val ElixirPurple = Color(0xFFB8338A)
+val OnElixirPurple = Color(0xFFFFFFFF)
+val ElixirContainer = Color(0xFFF7D4EB)
+val OnElixirContainer = Color(0xFF59103F)
 
-val TextPrimary = Color(0xFFF3EFEA)
-val TextSecondary = Color(0xFF9A9287)
+// Clash Action Green (Free Slots, Positive Actions & Goblin)
+val ClashGreen = Color(0xFF3E9E14)
+val ClashGreenBright = Color(0xFF6CC62E)
+val OnClashGreen = Color(0xFFFFFFFF)
+val ClashGreenContainer = Color(0xFFD3F5BD)
+val OnClashGreenContainer = Color(0xFF1A4F03)
+
+// Clash Sky Blue (Navigation & Info Actions)
+val ClashBlue = Color(0xFF2E8AE6)
+val ClashBlueBright = Color(0xFF4DA6FF)
+val OnClashBlue = Color(0xFFFFFFFF)
+
+// Clash Crimson Red (Destructive & Error Actions)
+val ClashRed = Color(0xFFD93829)
+val OnClashRed = Color(0xFFFFFFFF)
+val ClashRedContainer = Color(0xFFFCDAD7)
+val OnClashRedContainer = Color(0xFF6E1109)
