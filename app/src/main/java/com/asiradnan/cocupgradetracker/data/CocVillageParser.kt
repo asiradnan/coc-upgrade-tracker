@@ -14,10 +14,10 @@ object CocVillageParser {
         val clean = trimmed.substring(jsonStart, jsonEnd + 1)
         val hasTag = clean.contains("\"tag\"")
         val hasCocKey = clean.contains("\"buildings\"") ||
-            clean.contains("\"heroes\"") ||
-            clean.contains("\"buildings2\"") ||
-            clean.contains("\"spells\"") ||
-            clean.contains("\"units\"")
+                clean.contains("\"heroes\"") ||
+                clean.contains("\"buildings2\"") ||
+                clean.contains("\"spells\"") ||
+                clean.contains("\"units\"")
 
         return hasTag && hasCocKey
     }
@@ -65,6 +65,21 @@ object CocVillageParser {
             root.optLong("timestamp", pastedAtEpochSeconds)
         } else {
             pastedAtEpochSeconds
+        }
+
+        val boostsObj = root.optObject("boosts")
+        val activeBoosts = if (boostsObj != null) {
+            ActiveBoosts(
+                builderPotionSeconds = max(0L, boostsObj.optLong("builder_boost", 0L)),
+                labPotionSeconds = max(0L, boostsObj.optLong("lab_boost", 0L)),
+                builderSnackSeconds = max(0L, boostsObj.optLong("builder_consumable", 0L)),
+                labSnackSeconds = max(0L, boostsObj.optLong("lab_consumable", 0L)),
+                clockTowerBoostSeconds = max(0L, boostsObj.optLong("clocktower_boost", 0L)),
+                clockTowerCooldownSeconds = max(0L, boostsObj.optLong("clocktower_cooldown", 0L)),
+                helperCooldownSeconds = max(0L, boostsObj.optLong("helper_cooldown", 0L))
+            )
+        } else {
+            ActiveBoosts()
         }
 
         val buildingsArray = root.optArray("buildings")
@@ -117,21 +132,24 @@ object CocVillageParser {
             categoryProvider = { UpgradeCategory.BUILDING },
             nameProvider = { CocDataCatalog.getBuildingName(it) },
             targetList = builderUpgrades,
-            prefix = "bld"
+            prefix = "bld",
+            boosts = activeBoosts
         )
         extractUpgrades(
             array = trapsArray,
             categoryProvider = { UpgradeCategory.TRAP },
             nameProvider = { CocDataCatalog.getTrapName(it) },
             targetList = builderUpgrades,
-            prefix = "trp"
+            prefix = "trp",
+            boosts = activeBoosts
         )
         extractUpgrades(
             array = heroesArray,
             categoryProvider = { UpgradeCategory.HERO },
             nameProvider = { CocDataCatalog.getHeroName(it) },
             targetList = builderUpgrades,
-            prefix = "hero"
+            prefix = "hero",
+            boosts = activeBoosts
         )
 
         val labUpgrades = mutableListOf<UpgradeItem>()
@@ -142,21 +160,24 @@ object CocVillageParser {
             },
             nameProvider = { CocDataCatalog.getUnitName(it) },
             targetList = labUpgrades,
-            prefix = "unit"
+            prefix = "unit",
+            boosts = activeBoosts
         )
         extractUpgrades(
             array = spellsArray,
             categoryProvider = { UpgradeCategory.SPELL },
             nameProvider = { CocDataCatalog.getSpellName(it) },
             targetList = labUpgrades,
-            prefix = "spell"
+            prefix = "spell",
+            boosts = activeBoosts
         )
         extractUpgrades(
             array = siegeArray,
             categoryProvider = { UpgradeCategory.SIEGE },
             nameProvider = { CocDataCatalog.getUnitName(it) },
             targetList = labUpgrades,
-            prefix = "siege"
+            prefix = "siege",
+            boosts = activeBoosts
         )
 
         val petUpgrades = mutableListOf<UpgradeItem>()
@@ -165,7 +186,8 @@ object CocVillageParser {
             categoryProvider = { UpgradeCategory.PET },
             nameProvider = { CocDataCatalog.getPetName(it) },
             targetList = petUpgrades,
-            prefix = "pet"
+            prefix = "pet",
+            boosts = activeBoosts
         )
 
         val builderBaseUpgrades = mutableListOf<UpgradeItem>()
@@ -174,21 +196,24 @@ object CocVillageParser {
             categoryProvider = { UpgradeCategory.BUILDER_BASE_BUILDING },
             nameProvider = { CocDataCatalog.getBuildingName(it) },
             targetList = builderBaseUpgrades,
-            prefix = "bb_bld"
+            prefix = "bb_bld",
+            boosts = activeBoosts
         )
         extractUpgrades(
             array = traps2Array,
             categoryProvider = { UpgradeCategory.BUILDER_BASE_BUILDING },
             nameProvider = { CocDataCatalog.getTrapName(it) },
             targetList = builderBaseUpgrades,
-            prefix = "bb_trp"
+            prefix = "bb_trp",
+            boosts = activeBoosts
         )
         extractUpgrades(
             array = heroes2Array,
             categoryProvider = { UpgradeCategory.BUILDER_BASE_BUILDING },
             nameProvider = { CocDataCatalog.getHeroName(it) },
             targetList = builderBaseUpgrades,
-            prefix = "bb_hero"
+            prefix = "bb_hero",
+            boosts = activeBoosts
         )
 
         val starLabUpgrades = mutableListOf<UpgradeItem>()
@@ -197,7 +222,8 @@ object CocVillageParser {
             categoryProvider = { UpgradeCategory.BUILDER_BASE_RESEARCH },
             nameProvider = { CocDataCatalog.getUnitName(it) },
             targetList = starLabUpgrades,
-            prefix = "bb_unit"
+            prefix = "bb_unit",
+            boosts = activeBoosts
         )
 
         val helpers = mutableListOf<HelperStatus>()
@@ -206,7 +232,7 @@ object CocVillageParser {
                 val dataId = obj.optInt("data", -1)
                 if (dataId == -1) continue
                 val lvl = obj.optInt("lvl", 1)
-                val cooldown = obj.optLong("helper_cooldown", 0L)
+                val cooldown = obj.optLong("helper_cooldown", activeBoosts.helperCooldownSeconds)
                 helpers.add(
                     HelperStatus(
                         dataId = dataId,
@@ -218,11 +244,11 @@ object CocVillageParser {
             }
         }
 
-        builderUpgrades.sortBy { it.durationSecondsAtExport }
-        labUpgrades.sortBy { it.durationSecondsAtExport }
-        petUpgrades.sortBy { it.durationSecondsAtExport }
-        builderBaseUpgrades.sortBy { it.durationSecondsAtExport }
-        starLabUpgrades.sortBy { it.durationSecondsAtExport }
+        builderUpgrades.sortBy { it.effectiveDurationSeconds }
+        labUpgrades.sortBy { it.effectiveDurationSeconds }
+        petUpgrades.sortBy { it.effectiveDurationSeconds }
+        builderBaseUpgrades.sortBy { it.effectiveDurationSeconds }
+        starLabUpgrades.sortBy { it.effectiveDurationSeconds }
 
         val nonGoblinBuilderUpgrades = builderUpgrades.count { !it.isGoblinHelper }
         val resolvedRegularBuilders = when {
@@ -276,6 +302,7 @@ object CocVillageParser {
                 builderBaseUpgrades = builderBaseUpgrades,
                 starLabUpgrades = starLabUpgrades,
                 helpers = helpers,
+                boosts = activeBoosts,
                 rawJson = cleanJson
             )
         )
@@ -286,7 +313,8 @@ object CocVillageParser {
         categoryProvider: (Int) -> UpgradeCategory,
         nameProvider: (Int) -> String,
         targetList: MutableList<UpgradeItem>,
-        prefix: String
+        prefix: String,
+        boosts: ActiveBoosts
     ) {
         if (array == null) return
         array.forEachIndexed { i, obj ->
@@ -299,10 +327,14 @@ object CocVillageParser {
             val isExtra = obj.optBoolean("extra", false)
             val helperRecurrent = obj.optBoolean("helper_recurrent", false)
             val supercharge = if (obj.has("supercharge")) obj.optInt("supercharge", 0) else null
-            val gearUp = obj.optInt("gear_up", 0) > 0 && currentLvl > 0 && obj.optBoolean("gearing_up", false)
+            val gearUp = obj.optInt("gear_up", 0) > 0 && currentLvl > 0 && obj.optBoolean(
+                "gearing_up",
+                false
+            )
 
             val category = categoryProvider(dataId)
             val itemName = nameProvider(dataId)
+            val effectiveDuration = boosts.computeRealDurationSeconds(timer, category)
 
             for (instanceIdx in 0 until cnt) {
                 targetList.add(
@@ -314,6 +346,7 @@ object CocVillageParser {
                         currentLevel = currentLvl,
                         targetLevel = currentLvl + 1,
                         durationSecondsAtExport = timer,
+                        effectiveDurationSeconds = effectiveDuration,
                         isGoblinHelper = isExtra,
                         isApprenticeRecurring = helperRecurrent,
                         superchargeLevel = supercharge,
@@ -371,7 +404,12 @@ object CocVillageParser {
   ],
   "units2": [
     { "data": 4000036, "lvl": 19, "timer": 41400 }
-  ]
+  ],
+  "boosts": {
+    "builder_boost": 1800,
+    "lab_consumable": 2400,
+    "clocktower_cooldown": 54200
+  }
 }
         """.trimIndent()
     }

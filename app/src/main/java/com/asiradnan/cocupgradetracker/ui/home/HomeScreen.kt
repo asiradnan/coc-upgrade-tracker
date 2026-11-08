@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +39,7 @@ import com.asiradnan.cocupgradetracker.ui.components.ClashButtonStyle
 import com.asiradnan.cocupgradetracker.ui.components.ClashBevelCard
 import com.asiradnan.cocupgradetracker.ui.components.ClashOutlinedText
 import com.asiradnan.cocupgradetracker.ui.components.ClashPanelCard
-import com.asiradnan.cocupgradetracker.ui.theme.ClashGreen
+import com.asiradnan.cocupgradetracker.ui.components.ClashTownHallImage
 import com.asiradnan.cocupgradetracker.ui.theme.ClashGreenBright
 import com.asiradnan.cocupgradetracker.ui.theme.ClashRed
 import kotlin.math.abs
@@ -112,6 +114,14 @@ fun HomeScreen(
                 }
             }
         } else {
+            ClashOutlinedText(
+                text = "Villages",
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+            )
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -155,20 +165,43 @@ fun VillageSummaryRowCard(
         onClick = onClick,
         onLongClick = onLongClick
     ) {
-        // Left: Village name in bold dark chocolate ink Titan One
-        Text(
-            text = village.username,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Black
-            ),
-            color = Color(0xFF261D15),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+        // Respective Town Hall image
+        ClashTownHallImage(
+            townHallLevel = village.townHallLevel,
+            modifier = Modifier.size(50.dp)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Village name and Town Hall level
+        Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 12.dp)
-        )
+                .padding(end = 12.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = village.username,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Black
+                ),
+                color = Color(0xFF261D15),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (!isUninitialized) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "TH ${village.townHallLevel}",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Color(0xFF756A5B)
+                )
+            }
+        }
 
         // Right: Status
         if (isUninitialized) {
@@ -185,50 +218,45 @@ fun VillageSummaryRowCard(
                 "Idle for" to TimeFormatters.formatCompactDuration(freeDurationSeconds)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(
+                ClashOutlinedText(
                     text = statusTitle,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Black
+                        fontWeight = FontWeight.Bold
                     ),
-                    color = ClashRed
+                    color = ClashRed,
+                    outlineWidth = 1.0.dp,
+                    shadowOffset = 0.5.dp,
+                    shadowAlpha = 0.22f,
+                    shadowBlurRadius = 0.5.dp
                 )
-                Text(
+                ClashOutlinedText(
                     text = statusSubtitle,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     ),
-                    color = ClashRed
+                    color = ClashRed,
+                    outlineWidth = 1.0.dp,
+                    shadowOffset = 0.5.dp,
+                    shadowAlpha = 0.22f,
+                    shadowBlurRadius = 0.5.dp
                 )
             }
         } else if (earliest != null) {
             val finishEpoch = earliest.finishEpochSeconds(baseEpochSeconds)
-            val remaining = earliest.remainingSeconds(baseEpochSeconds, nowEpochSeconds)
             val formattedClock = TimeFormatters.formatClockTimeOnly(finishEpoch)
-            val relativeLabel = when {
-                remaining <= 0L -> "now"
-                remaining < 86400L -> "in ${TimeFormatters.formatCompactDuration(remaining)}"
-                else -> TimeFormatters.formatCompactDuration(remaining)
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = formattedClock,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Black
-                    ),
-                    color = ClashGreen
-                )
-                Text(
-                    text = relativeLabel,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = ClashGreen
-                )
-            }
+            ClashOutlinedText(
+                text = formattedClock,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontSize = 17.sp
+                ),
+                color = ClashGreenBright,
+                outlineWidth = 1.1.dp,
+                shadowOffset = 0.5.dp,
+                shadowAlpha = 0.22f,
+                shadowBlurRadius = 0.5.dp
+            )
         }
     }
 }

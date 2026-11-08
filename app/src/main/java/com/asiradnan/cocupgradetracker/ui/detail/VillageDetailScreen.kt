@@ -98,26 +98,29 @@ fun VillageDetailScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
         ClashEtchedDivider()
-        Spacer(modifier = Modifier.height(14.dp))
 
-        BaseSectionCard(
-            title = "Builder Base",
-            headerColor = PanelHeaderBuilderBase,
-            levelBadge = if (village.pastedAtEpochSeconds > 0L && village.builderHallLevel != null) {
-                "BH ${village.builderHallLevel}"
-            } else {
-                null
-            },
-            totalBuilders = village.totalBuilderBaseBuilders,
-            builderUpgrades = village.builderBaseUpgrades,
-            labUpgrades = village.starLabUpgrades,
-            baseEpochSeconds = baseEpoch,
-            pastedAtEpochSeconds = village.pastedAtEpochSeconds,
-            nowEpochSeconds = nowEpochSeconds
-        )
+        if (village.townHallLevel >= 6) {
+            Spacer(modifier = Modifier.height(14.dp))
 
-        Spacer(modifier = Modifier.height(14.dp))
-        ClashEtchedDivider()
+            BaseSectionCard(
+                title = "Builder Base",
+                headerColor = PanelHeaderBuilderBase,
+                levelBadge = if (village.pastedAtEpochSeconds > 0L && village.builderHallLevel != null) {
+                    "BH ${village.builderHallLevel}"
+                } else {
+                    null
+                },
+                totalBuilders = village.totalBuilderBaseBuilders,
+                builderUpgrades = village.builderBaseUpgrades,
+                labUpgrades = village.starLabUpgrades,
+                baseEpochSeconds = baseEpoch,
+                pastedAtEpochSeconds = village.pastedAtEpochSeconds,
+                nowEpochSeconds = nowEpochSeconds
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+            ClashEtchedDivider()
+        }
+
         Spacer(modifier = Modifier.height(18.dp))
 
         ClashBevelButton(
@@ -216,11 +219,11 @@ private fun EarliestFreeOrAlreadyFreeBox(
     val freeDurationSeconds = village.getFreeDurationSeconds(nowEpochSeconds)
 
     val allActiveUpgrades = (
-        village.builderUpgrades +
-            village.labUpgrades +
-            village.builderBaseUpgrades +
-            village.starLabUpgrades
-        ).filter { it.remainingSeconds(baseEpochSeconds, nowEpochSeconds) > 0L }
+            village.builderUpgrades +
+                    village.labUpgrades +
+                    village.builderBaseUpgrades +
+                    village.starLabUpgrades
+            ).filter { it.remainingSeconds(baseEpochSeconds, nowEpochSeconds) > 0L }
 
     val earliest = allActiveUpgrades.minByOrNull { it.finishEpochSeconds(baseEpochSeconds) }
 
@@ -257,7 +260,8 @@ private fun EarliestFreeOrAlreadyFreeBox(
                 )
             } else if (earliest != null) {
                 val finishEpoch = earliest.finishEpochSeconds(baseEpochSeconds)
-                val formattedClock = TimeFormatters.formatShortClockTime(finishEpoch, nowEpochSeconds)
+                val formattedClock =
+                    TimeFormatters.formatShortClockTime(finishEpoch, nowEpochSeconds)
                 ClashOutlinedText(
                     text = "Earliest free",
                     style = MaterialTheme.typography.titleMedium,

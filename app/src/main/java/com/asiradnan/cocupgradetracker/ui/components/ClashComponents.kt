@@ -3,6 +3,7 @@ package com.asiradnan.cocupgradetracker.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -49,7 +50,9 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -58,6 +61,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
+import com.asiradnan.cocupgradetracker.R
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueBottom
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueGlossBottom
 import com.asiradnan.cocupgradetracker.ui.theme.ButtonBlueGlossTop
@@ -745,103 +749,58 @@ fun ClashCrestBadge(
     }
 }
 
+/**
+ * Maps a Town Hall level (1..16) to its bundled drawable resource from coc_assets/townhalls.
+ */
+fun getTownHallDrawableRes(townHallLevel: Int): Int {
+    return when (townHallLevel.coerceIn(1, 16)) {
+        1 -> R.drawable.th_1
+        2 -> R.drawable.th_2
+        3 -> R.drawable.th_3
+        4 -> R.drawable.th_4
+        5 -> R.drawable.th_5
+        6 -> R.drawable.th_6
+        7 -> R.drawable.th_7
+        8 -> R.drawable.th_8
+        9 -> R.drawable.th_9
+        10 -> R.drawable.th_10
+        11 -> R.drawable.th_11
+        12 -> R.drawable.th_12
+        13 -> R.drawable.th_13
+        14 -> R.drawable.th_14
+        15 -> R.drawable.th_15
+        16 -> R.drawable.th_16
+        else -> R.drawable.th_1
+    }
+}
+
+/**
+ * Town Hall visual image asset loaded from coc_assets/townhalls.
+ */
+@Composable
+fun ClashTownHallImage(
+    townHallLevel: Int,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = "Town Hall $townHallLevel"
+) {
+    Image(
+        painter = painterResource(getTownHallDrawableRes(townHallLevel)),
+        contentDescription = contentDescription,
+        modifier = modifier,
+        contentScale = ContentScale.Fit
+    )
+}
+
 @Composable
 fun ClashTownHallIcon(
     townHallLevel: Int,
     modifier: Modifier = Modifier,
     isUninitialized: Boolean = false
 ) {
-    val roofColor = when {
-        isUninitialized -> Color(0xFF7B7366)
-        townHallLevel <= 8 -> Color(0xFFE07A1F)   // Classic Orange-Gold roof (TH1-8)
-        townHallLevel == 9 -> Color(0xFF3E434C)   // Dark Fortress slate (TH9)
-        townHallLevel == 10 -> Color(0xFFC92E23)  // Magma Red (TH10)
-        townHallLevel == 11 -> Color(0xFFD99B26)  // Ivory & Royal Gold (TH11)
-        townHallLevel in 12..13 -> Color(0xFF287CD4) // Electric / Frost Blue (TH12-13)
-        townHallLevel == 14 -> Color(0xFF2E9E49)  // Jungle Emerald (TH14)
-        townHallLevel == 15 -> Color(0xFF7E38B8)  // Arcane Purple (TH15)
-        townHallLevel == 16 -> Color(0xFFD44328)  // Solar Crimson & Gold (TH16)
-        else -> Color(0xFF35457A)                 // Deep Indigo & Gold (TH17+)
-    }
-
-    val wallColor = when {
-        isUninitialized -> Color(0xFFC9C0B1)
-        townHallLevel == 9 -> Color(0xFF6B707B)
-        townHallLevel == 11 -> Color(0xFFF2ECE1)
-        else -> Color(0xFFDED3BE)
-    }
-
-    Box(
+    ClashTownHallImage(
+        townHallLevel = townHallLevel,
         modifier = modifier
-            .size(46.dp)
-            .clip(MaterialTheme.shapes.small)
-            .background(Color(0xFF3A342C))
-            .border(1.5.dp, Color(0xFF594F41), MaterialTheme.shapes.small),
-        contentAlignment = Alignment.Center
-    ) {
-        Canvas(modifier = Modifier.size(40.dp)) {
-            val w = size.width
-            val h = size.height
-
-            // Building stone body
-            drawRoundRect(
-                color = wallColor,
-                topLeft = Offset(w * 0.20f, h * 0.40f),
-                size = Size(w * 0.60f, h * 0.46f),
-                cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx())
-            )
-
-            // Gold trim band under roof
-            drawRect(
-                color = Color(0xFFF0B22B),
-                topLeft = Offset(w * 0.18f, h * 0.39f),
-                size = Size(w * 0.64f, h * 0.06f)
-            )
-
-            // Pitched Townhall roof
-            val roofPath = Path().apply {
-                moveTo(w * 0.10f, h * 0.41f)
-                lineTo(w * 0.50f, h * 0.10f)
-                lineTo(w * 0.90f, h * 0.41f)
-                close()
-            }
-            drawPath(path = roofPath, color = roofColor)
-
-            // Roof ridge highlight
-            drawRoundRect(
-                color = Color(0xFFF5C542),
-                topLeft = Offset(w * 0.44f, h * 0.07f),
-                size = Size(w * 0.12f, h * 0.08f),
-                cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
-            )
-
-            // Dark arched entrance doorway
-            drawRoundRect(
-                color = Color(0xFF2B241D),
-                topLeft = Offset(w * 0.39f, h * 0.54f),
-                size = Size(w * 0.22f, h * 0.32f),
-                cornerRadius = CornerRadius(6.dp.toPx(), 6.dp.toPx())
-            )
-        }
-
-        // Level badge at the bottom right
-        if (!isUninitialized) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(2.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(Color(0xD91F1A14))
-                    .padding(horizontal = 4.dp, vertical = 1.dp)
-            ) {
-                Text(
-                    text = "TH$townHallLevel",
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Black),
-                    color = Color(0xFFFFD24C)
-                )
-            }
-        }
-    }
+    )
 }
 
 @Composable

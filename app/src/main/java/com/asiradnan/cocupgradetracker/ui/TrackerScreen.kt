@@ -20,9 +20,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -126,23 +128,36 @@ fun TrackerScreen() {
         pageCount = { pagerPageCount }
     )
 
-    // Sync ViewModel index when user swipes pager
-    LaunchedEffect(pagerState.settledPage, villageCount, isHomePage) {
-        if (!isHomePage && villageCount > 0) {
-            val resolvedIdx = Math.floorMod(pagerState.settledPage, villageCount)
-            viewModel.onPageSettled(resolvedIdx)
-        }
-    }
+    // 1. Track when we transition from Home -> Detail to snap immediately without animation
+    var wasHomePage by remember { mutableStateOf(isHomePage) }
 
-    // Sync pager position when intelligent tag-matching updates a different village
     LaunchedEffect(safeIndex, isHomePage, villageCount) {
-        if (!isHomePage && villageCount > 1 && !pagerState.isScrollInProgress) {
+        if (!isHomePage && villageCount > 1) {
             val currentMod = Math.floorMod(pagerState.currentPage, villageCount)
             if (currentMod != safeIndex) {
                 val forwardDelta = Math.floorMod(safeIndex - currentMod, villageCount)
-                pagerState.animateScrollToPage(pagerState.currentPage + forwardDelta)
+                val targetPage = pagerState.currentPage + forwardDelta
+                if (wasHomePage) {
+                    // Coming from Home screen: snap instantly so settledPage updates immediately
+                    pagerState.scrollToPage(targetPage)
+                } else if (!pagerState.isScrollInProgress) {
+                    // Already on Detail screen (e.g. top bar selection or paste update): animate
+                    pagerState.animateScrollToPage(targetPage)
+                }
             }
         }
+        wasHomePage = isHomePage
+    }
+
+    // 2. Only sync pager -> ViewModel when the pager settles AND the page matches user swipe
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }
+            .collect { settledPage ->
+                if (!uiState.isHomePage && uiState.villages.isNotEmpty()) {
+                    val resolvedIdx = Math.floorMod(settledPage, uiState.villages.size)
+                    viewModel.onPageSettled(resolvedIdx)
+                }
+            }
     }
 
     val showingHome = isHomePage || villages.isEmpty()
@@ -223,7 +238,7 @@ fun TrackerScreen() {
                 }
             )
         } else {
-            BackHandler(enabled = !isHomePage) {
+            BackHandler(enabled = true) {
                 viewModel.navigateHome()
             }
 

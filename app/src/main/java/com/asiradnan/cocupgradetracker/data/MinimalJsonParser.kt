@@ -32,6 +32,12 @@ internal class JsonMap(private val map: Map<String, Any?>) {
             (item as? Map<String, Any?>)?.let { JsonMap(it) }
         }
     }
+
+    @Suppress("UNCHECKED_CAST")
+    fun optObject(key: String): JsonMap? {
+        val obj = map[key] as? Map<String, Any?> ?: return null
+        return JsonMap(obj)
+    }
 }
 
 internal class MinimalJsonParser(private val input: String) {

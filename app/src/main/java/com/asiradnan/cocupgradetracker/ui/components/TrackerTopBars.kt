@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +48,12 @@ fun HomeTopAppBar(
             title = {
                 ClashOutlinedText(
                     text = "COC Upgrade Tracker",
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 17.sp,
+                        letterSpacing = 0.sp
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             },
             actions = {
@@ -55,6 +62,7 @@ fun HomeTopAppBar(
                     leadingIcon = Icons.Default.Add,
                     onClick = onAddVillageClick,
                     style = ClashButtonStyle.BLUE,
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 7.dp),
                     modifier = Modifier.padding(end = 12.dp)
                 )
             }
