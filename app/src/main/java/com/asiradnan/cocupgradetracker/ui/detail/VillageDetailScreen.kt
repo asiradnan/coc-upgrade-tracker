@@ -93,7 +93,8 @@ fun VillageDetailScreen(
             labUpgrades = village.labUpgrades,
             baseEpochSeconds = baseEpoch,
             pastedAtEpochSeconds = village.pastedAtEpochSeconds,
-            nowEpochSeconds = nowEpochSeconds
+            nowEpochSeconds = nowEpochSeconds,
+            showLab = village.townHallLevel >= 3
         )
 
         Spacer(modifier = Modifier.height(14.dp))
@@ -295,7 +296,8 @@ private fun BaseSectionCard(
     labUpgrades: List<UpgradeItem>,
     baseEpochSeconds: Long,
     pastedAtEpochSeconds: Long,
-    nowEpochSeconds: Long
+    nowEpochSeconds: Long,
+    showLab: Boolean = true
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val regularBuilders = builderUpgrades.filter { !it.isGoblinHelper }
@@ -357,28 +359,30 @@ private fun BaseSectionCard(
                     fillStyle = ClashCapsuleFillStyle.GREEN
                 )
             }
-
-            UpgradeSlotRow(
-                slotLabel = "Laboratory",
-                upgrade = regularLab,
-                baseEpochSeconds = baseEpochSeconds,
-                pastedAtEpochSeconds = pastedAtEpochSeconds,
-                nowEpochSeconds = nowEpochSeconds,
-                referenceMaxSeconds = sectionMaxDuration,
-                fillStyle = ClashCapsuleFillStyle.ELIXIR
-            )
-
-            goblinLabs.forEach { goblinLab ->
+            if (showLab) {
                 UpgradeSlotRow(
-                    slotLabel = "Goblin Researcher",
-                    upgrade = goblinLab,
+                    slotLabel = "Laboratory",
+                    upgrade = regularLab,
                     baseEpochSeconds = baseEpochSeconds,
                     pastedAtEpochSeconds = pastedAtEpochSeconds,
                     nowEpochSeconds = nowEpochSeconds,
                     referenceMaxSeconds = sectionMaxDuration,
                     fillStyle = ClashCapsuleFillStyle.ELIXIR
                 )
+
+                goblinLabs.forEach { goblinLab ->
+                    UpgradeSlotRow(
+                        slotLabel = "Goblin Researcher",
+                        upgrade = goblinLab,
+                        baseEpochSeconds = baseEpochSeconds,
+                        pastedAtEpochSeconds = pastedAtEpochSeconds,
+                        nowEpochSeconds = nowEpochSeconds,
+                        referenceMaxSeconds = sectionMaxDuration,
+                        fillStyle = ClashCapsuleFillStyle.ELIXIR
+                    )
+                }
             }
+
         }
     }
 }
