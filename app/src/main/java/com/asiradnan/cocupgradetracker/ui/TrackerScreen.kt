@@ -74,12 +74,16 @@ fun TrackerScreen() {
     val isHomePage = uiState.isHomePage
 
     fun readClipboardText(): String? {
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-        return clipboard?.primaryClip
-            ?.takeIf { it.itemCount > 0 }
-            ?.getItemAt(0)
-            ?.coerceToText(context)
-            ?.toString()
+        return try {
+            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+            clipboard?.primaryClip
+                ?.takeIf { it.itemCount > 0 }
+                ?.getItemAt(0)
+                ?.coerceToText(context)
+                ?.toString()
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun showOutcomeToast(outcome: PasteOutcome) {
