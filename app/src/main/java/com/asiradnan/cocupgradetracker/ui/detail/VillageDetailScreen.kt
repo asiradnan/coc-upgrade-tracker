@@ -39,6 +39,7 @@ import com.asiradnan.cocupgradetracker.ui.components.ClashEtchedDivider
 import com.asiradnan.cocupgradetracker.ui.components.ClashOutlinedText
 import com.asiradnan.cocupgradetracker.ui.components.ClashPanelCard
 import com.asiradnan.cocupgradetracker.ui.components.ClashUpgradeCapsuleBar
+import com.asiradnan.cocupgradetracker.ui.theme.ClashGold
 import com.asiradnan.cocupgradetracker.ui.theme.ClashGreenBright
 import com.asiradnan.cocupgradetracker.ui.theme.ClashRed
 import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderBuilderBase
@@ -79,6 +80,20 @@ fun VillageDetailScreen(
             baseEpochSeconds = baseEpoch,
             nowEpochSeconds = nowEpochSeconds
         )
+
+        val activeBoosts = getActiveBoostList(
+            village = village,
+            baseEpochSeconds = baseEpoch,
+            nowEpochSeconds = nowEpochSeconds
+        )
+
+        if (activeBoosts.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(14.dp))
+            ClashEtchedDivider()
+            Spacer(modifier = Modifier.height(14.dp))
+
+            ActiveBoostsSectionCard(activeBoosts = activeBoosts)
+        }
 
         Spacer(modifier = Modifier.height(14.dp))
         ClashEtchedDivider()
@@ -280,6 +295,130 @@ private fun EarliestFreeOrAlreadyFreeBox(
                     shadowOffset = 0.5.dp,
                     shadowAlpha = 0.22f,
                     shadowBlurRadius = 0.5.dp
+                )
+            }
+        }
+    }
+}
+
+private data class DisplayActiveBoost(
+    val title: String,
+    val remainingSeconds: Long,
+    val totalDurationSeconds: Long,
+    val fillStyle: ClashCapsuleFillStyle
+)
+
+private fun getActiveBoostList(
+    village: VillageData,
+    baseEpochSeconds: Long,
+    nowEpochSeconds: Long
+): List<DisplayActiveBoost> {
+    val boosts = village.boosts
+    if (!boosts.hasAnyActiveBoost) return emptyList()
+
+    val elapsed = if (baseEpochSeconds > 0L) max(0L, nowEpochSeconds - baseEpochSeconds) else 0L
+    val result = mutableListOf<DisplayActiveBoost>()
+
+    val builderPotionRem = max(0L, boosts.builderPotionSeconds - elapsed)
+    if (builderPotionRem > 0L) {
+        result.add(
+            DisplayActiveBoost(
+                title = "Builder Potion (10x)",
+                remainingSeconds = builderPotionRem,
+                totalDurationSeconds = boosts.builderPotionSeconds,
+                fillStyle = ClashCapsuleFillStyle.GOLD
+            )
+        )
+    }
+
+    val labPotionRem = max(0L, boosts.labPotionSeconds - elapsed)
+    if (labPotionRem > 0L) {
+        result.add(
+            DisplayActiveBoost(
+                title = "Research Potion (24x)",
+                remainingSeconds = labPotionRem,
+                totalDurationSeconds = boosts.labPotionSeconds,
+                fillStyle = ClashCapsuleFillStyle.ELIXIR
+            )
+        )
+    }
+
+    val builderSnackRem = max(0L, boosts.builderSnackSeconds - elapsed)
+    if (builderSnackRem > 0L) {
+        result.add(
+            DisplayActiveBoost(
+                title = "Builder Bite (2x)",
+                remainingSeconds = builderSnackRem,
+                totalDurationSeconds = boosts.builderSnackSeconds,
+                fillStyle = ClashCapsuleFillStyle.GOLD
+            )
+        )
+    }
+
+    val labSnackRem = max(0L, boosts.labSnackSeconds - elapsed)
+    if (labSnackRem > 0L) {
+        result.add(
+            DisplayActiveBoost(
+                title = "Study Soup (4x)",
+                remainingSeconds = labSnackRem,
+                totalDurationSeconds = boosts.labSnackSeconds,
+                fillStyle = ClashCapsuleFillStyle.ELIXIR
+            )
+        )
+    }
+
+    val clockTowerRem = max(0L, boosts.clockTowerBoostSeconds - elapsed)
+    if (clockTowerRem > 0L) {
+        result.add(
+            DisplayActiveBoost(
+                title = "Clock Tower Boost (10x)",
+                remainingSeconds = clockTowerRem,
+                totalDurationSeconds = boosts.clockTowerBoostSeconds,
+                fillStyle = ClashCapsuleFillStyle.BLUE
+            )
+        )
+    }
+
+    return result
+}
+
+@Composable
+private fun ActiveBoostsSectionCard(
+    activeBoosts: List<DisplayActiveBoost>
+) {
+    ClashPanelCard(
+        headerTitle = "Active Boosts",
+        headerColor = Color(0xFF7A4A1E),
+        containerColor = Color(0xFF634B3A),
+        borderColor = Color(0xFF2E2219),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
+        headerTrailingContent = {
+            ClashCrestBadge(
+                text = "${activeBoosts.size} Active",
+                containerColor = ClashGold,
+                contentColor = Color.White,
+                borderColor = Color(0xFF4A2B00),
+                shadowText = true
+            )
+        }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            activeBoosts.forEach { boost ->
+                val progress = if (boost.totalDurationSeconds > 0L) {
+                    (boost.remainingSeconds.toFloat() / boost.totalDurationSeconds.toFloat()).coerceIn(0.04f, 1f)
+                } else {
+                    1f
+                }
+                ClashUpgradeCapsuleBar(
+                    titleText = boost.title,
+                    rightText = TimeFormatters.formatCompactDuration(boost.remainingSeconds),
+                    progress = progress,
+                    isActive = true,
+                    showStopwatch = true,
+                    fillStyle = boost.fillStyle
                 )
             }
         }

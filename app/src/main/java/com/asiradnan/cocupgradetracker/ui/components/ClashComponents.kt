@@ -885,7 +885,9 @@ fun ClashStopwatchIcon(
 
 enum class ClashCapsuleFillStyle {
     GREEN,
-    ELIXIR
+    ELIXIR,
+    GOLD,
+    BLUE
 }
 
 @Composable
@@ -907,14 +909,20 @@ fun ClashUpgradeCapsuleBar(
     val topFillColors = when (fillStyle) {
         ClashCapsuleFillStyle.GREEN -> listOf(Color(0xFF84F040), Color(0xFF6CD62B))
         ClashCapsuleFillStyle.ELIXIR -> listOf(Color(0xFFF564E8), Color(0xFFDE42CF))
+        ClashCapsuleFillStyle.GOLD -> listOf(Color(0xFFFFDD44), Color(0xFFFFAE19))
+        ClashCapsuleFillStyle.BLUE -> listOf(Color(0xFF66C8FF), Color(0xFF269DFF))
     }
     val bottomFillColors = when (fillStyle) {
         ClashCapsuleFillStyle.GREEN -> listOf(Color(0xFF4EB31B), Color(0xFF3D9412))
         ClashCapsuleFillStyle.ELIXIR -> listOf(Color(0xFFB825AB), Color(0xFF8F1484))
+        ClashCapsuleFillStyle.GOLD -> listOf(Color(0xFFE59412), Color(0xFFB86E00))
+        ClashCapsuleFillStyle.BLUE -> listOf(Color(0xFF1976D2), Color(0xFF0F56A4))
     }
     val edgeHighlightColor = when (fillStyle) {
         ClashCapsuleFillStyle.GREEN -> Color(0xFFB8FF5C)
         ClashCapsuleFillStyle.ELIXIR -> Color(0xFFFF99F6)
+        ClashCapsuleFillStyle.GOLD -> Color(0xFFFFF199)
+        ClashCapsuleFillStyle.BLUE -> Color(0xFFA6E3FF)
     }
 
     Box(
