@@ -38,6 +38,7 @@ import com.asiradnan.cocupgradetracker.ui.components.ClashButtonStyle
 import com.asiradnan.cocupgradetracker.ui.components.DeleteVillageConfirmDialog
 import com.asiradnan.cocupgradetracker.ui.components.HomeTopAppBar
 import com.asiradnan.cocupgradetracker.ui.components.VillageDetailTopAppBar
+import com.asiradnan.cocupgradetracker.ui.components.VillageNameDialog
 import com.asiradnan.cocupgradetracker.ui.detail.VillageDetailScreen
 import com.asiradnan.cocupgradetracker.ui.home.HomeScreen
 import kotlinx.coroutines.delay
@@ -189,6 +190,7 @@ fun TrackerScreen() {
                             }
                         }
                     },
+                    onEditNameClick = { viewModel.requestRename(safeIndex) },
                     onSelectVillageClick = { targetIdx ->
                         if (villages.size > 1 && targetIdx in villages.indices) {
                             viewModel.selectVillage(targetIdx)
@@ -289,6 +291,38 @@ fun TrackerScreen() {
                     }
                     is PasteOutcome.Error -> outcome.message
                 }
+            }
+        )
+    }
+
+    val renameIdx = uiState.renameIndex
+    if (renameIdx != null && renameIdx in villages.indices) {
+        VillageNameDialog(
+            title = "Rename Village",
+            initialName = villages[renameIdx].username,
+            confirmText = "Save",
+            onDismiss = { viewModel.requestRename(null) },
+            onConfirm = { newName ->
+                val saved = viewModel.renameVillage(renameIdx, newName)
+                if (saved != null) {
+                    Toast.makeText(context, "Renamed to $saved", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
+    if (uiState.pendingNewVillageJson != null) {
+        VillageNameDialog(
+            title = "New Village Detected",
+            message = "Found a new village in your clipboard. Name it to add it to your list.",
+            initialName = uiState.pendingNewVillageSuggestedName,
+            confirmText = "Add",
+            dismissText = "Not now",
+            onDismiss = { viewModel.dismissNewVillagePrompt() },
+            onConfirm = { chosenName ->
+                val nowSec = System.currentTimeMillis() / 1000L
+                val outcome = viewModel.confirmNewVillage(chosenName, nowSec)
+                if (outcome != null) showOutcomeToast(outcome)
             }
         )
     }

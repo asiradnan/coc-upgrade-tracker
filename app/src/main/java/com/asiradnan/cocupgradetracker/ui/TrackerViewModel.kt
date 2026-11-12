@@ -17,7 +17,12 @@ data class TrackerUiState(
     val currentIndex: Int = 0,
     val isHomePage: Boolean = true,
     val showAddVillageDialog: Boolean = false,
-    val pendingDeleteIndex: Int? = null
+    val pendingDeleteIndex: Int? = null,
+    /** Index of the village currently being renamed, or null when no rename dialog is open. */
+    val renameIndex: Int? = null,
+    /** Clipboard export of a brand-new village awaiting the user to name it. */
+    val pendingNewVillageJson: String? = null,
+    val pendingNewVillageSuggestedName: String = ""
 ) {
     val safeIndex: Int
         get() = currentIndex.coerceIn(0, (villages.size - 1).coerceAtLeast(0))
@@ -34,6 +39,8 @@ sealed class PasteOutcome {
 class TrackerViewModel(
     private val repository: VillageRepository
 ) : ViewModel() {
+
+    private var dismissedAutoJson: String? = null
 
     private val _uiState = MutableStateFlow(TrackerUiState())
     val uiState: StateFlow<TrackerUiState> = _uiState.asStateFlow()
@@ -100,6 +107,41 @@ class TrackerViewModel(
 
     fun requestDeleteVillage(index: Int?) {
         _uiState.update { it.copy(pendingDeleteIndex = index) }
+    }
+
+    fun requestRename(index: Int?) {
+        _uiState.update { it.copy(renameIndex = index) }
+    }
+
+    /** Renames the village at [index]. Returns the saved name, or null if the name/index was invalid. */
+    fun renameVillage(index: Int, newName: String): String? {
+        val name = newName.trim().take(MAX_VILLAGE_NAME_LENGTH)
+        val currentList = _uiState.value.villages
+        if (name.isEmpty() || index !in currentList.indices) {
+            _uiState.update { it.copy(renameIndex = null) }
+            return null
+        }
+        val updatedList = currentList.toMutableList()
+        updatedList[index] = updatedList[index].copy(username = name)
+        repository.saveVillages(updatedList, _uiState.value.safeIndex)
+        _uiState.update { it.copy(villages = updatedList, renameIndex = null) }
+        return name
+    }
+
+    /** Adds the clipboard village that was waiting for a name. */
+    fun confirmNewVillage(name: String, nowEpochSeconds: Long): PasteOutcome? {
+        val state = _uiState.value
+        val json = state.pendingNewVillageJson ?: return null
+        val finalName = name.trim().take(MAX_VILLAGE_NAME_LENGTH)
+            .ifEmpty { state.pendingNewVillageSuggestedName }
+        _uiState.update { it.copy(pendingNewVillageJson = null, pendingNewVillageSuggestedName = "") }
+        return addVillage(finalName, json, nowEpochSeconds)
+    }
+
+    /** User declined to add the detected clipboard village; don't ask again for the same export. */
+    fun dismissNewVillagePrompt() {
+        dismissedAutoJson = _uiState.value.pendingNewVillageJson?.trim()
+        _uiState.update { it.copy(pendingNewVillageJson = null, pendingNewVillageSuggestedName = "") }
     }
 
     fun confirmDeleteVillage(indexToDelete: Int): String? {
@@ -272,7 +314,9 @@ class TrackerViewModel(
 
     /**
      * Silently inspects the clipboard when app opens or resumes.
-     * If valid and unimported Clash of Clans JSON is found, it automatically applies it.
+     * - Export for a known village (or an empty placeholder slot): updated automatically.
+     * - Export for a brand-new village: NOT added silently; instead a pending prompt is raised so
+     *   the UI can ask the user to name it first.
      */
     fun autoPasteClipboardIfNew(
         clipText: String?,
@@ -282,30 +326,43 @@ class TrackerViewModel(
         if (!CocVillageParser.looksLikeCocExport(clipText)) return null
 
         val trimmed = clipText.trim()
-        val currentList = _uiState.value.villages
+        val state = _uiState.value
+        val currentList = state.villages
 
         // If any existing village already has this exact rawJson, do not re-apply
-        if (currentList.any { it.rawJson.trim() == trimmed }) {
-            return null
+        if (currentList.any { it.rawJson.trim() == trimmed }) return null
+        // User already said "not now" to this exact export
+        if (trimmed == dismissedAutoJson) return null
+        // Already asking about this export, or the manual Add dialog is handling clipboard itself
+        if (state.pendingNewVillageJson?.trim() == trimmed || state.showAddVillageDialog) return null
+
+        val parsed = (CocVillageParser.parse(clipText, nowEpochSeconds) as? ParseResult.Success)
+            ?.village ?: return null
+
+        val matchesExisting = hasValidTag(parsed.tag) &&
+            currentList.any { it.tag.equals(parsed.tag, ignoreCase = true) }
+        val hasPlaceholderSlot = currentList.any { !hasValidTag(it.tag) && it.rawJson.isBlank() }
+
+        if (matchesExisting || hasPlaceholderSlot) {
+            return pasteUpdateIntelligent(clipText, nowEpochSeconds) as? PasteOutcome.Success
         }
 
-        // If list is empty, auto-add as the first village
-        if (currentList.isEmpty()) {
-            return addVillage("", clipText, nowEpochSeconds)
+        // Brand-new village: ask for a name before adding it
+        _uiState.update {
+            it.copy(
+                pendingNewVillageJson = clipText,
+                pendingNewVillageSuggestedName = parsed.username
+            )
         }
-
-        // Otherwise intelligently update the matching village, or add if it's a new account tag
-        return when (val outcome = pasteUpdateIntelligent(clipText, nowEpochSeconds)) {
-            is PasteOutcome.Success -> outcome
-            is PasteOutcome.Error -> {
-                // If tag is not found in existing villages, auto-add as a new village
-                addVillage("", clipText, nowEpochSeconds)
-            }
-        }
+        return null
     }
 
     private fun hasValidTag(tag: String): Boolean =
         tag.isNotBlank() && tag != "#VILLAGE" && tag != "#NEW"
+
+    companion object {
+        const val MAX_VILLAGE_NAME_LENGTH = 30
+    }
 
     class Factory(private val context: Context) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")

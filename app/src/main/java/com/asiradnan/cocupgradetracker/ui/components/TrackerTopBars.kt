@@ -12,12 +12,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -79,7 +82,8 @@ fun VillageDetailTopAppBar(
     totalVillages: Int,
     onHomeClick: () -> Unit,
     onNextVillageClick: () -> Unit,
-    onSelectVillageClick: ((Int) -> Unit)? = null
+    onSelectVillageClick: ((Int) -> Unit)? = null,
+    onEditNameClick: (() -> Unit)? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -102,16 +106,37 @@ fun VillageDetailTopAppBar(
             },
             title = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    ClashOutlinedText(
-                        text = villageName,
-                        style = MaterialTheme.typography.titleLarge,
-                        outlineWidth = 1.6.dp,
-                        shadowOffset = 1.0.dp,
-                        shadowAlpha = 0.40f,
-                        shadowBlurRadius = 1.0.dp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable(
+                                enabled = onEditNameClick != null,
+                                onClick = { onEditNameClick?.invoke() }
+                            )
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        ClashOutlinedText(
+                            text = villageName,
+                            style = MaterialTheme.typography.titleLarge,
+                            outlineWidth = 1.6.dp,
+                            shadowOffset = 1.0.dp,
+                            shadowAlpha = 0.40f,
+                            shadowBlurRadius = 1.0.dp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        if (onEditNameClick != null) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Rename village",
+                                tint = Color(0xFF261D15).copy(alpha = 0.6f),
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                     if (totalVillages > 1) {
                         Spacer(modifier = Modifier.height(3.dp))
                         Row(

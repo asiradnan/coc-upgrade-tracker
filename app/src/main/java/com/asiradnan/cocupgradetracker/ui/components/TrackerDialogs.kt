@@ -34,12 +34,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -424,6 +428,94 @@ fun AddVillageDialog(
                                 errorMsg = err
                             }
                         },
+                        style = ClashButtonStyle.GREEN
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Small dialog asking for a village name. Used both to rename an existing village and to name a
+ * brand-new village detected in the clipboard.
+ */
+@Composable
+fun VillageNameDialog(
+    title: String,
+    initialName: String,
+    confirmText: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+    message: String? = null,
+    dismissText: String = "Cancel",
+    maxLength: Int = 30
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val focusRequester = remember { FocusRequester() }
+
+    // Pre-select the whole name so typing replaces it immediately
+    var field by remember {
+        mutableStateOf(TextFieldValue(initialName, TextRange(0, initialName.length)))
+    }
+    val canConfirm = field.text.isNotBlank()
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        ClashPanelCard(
+            headerTitle = title,
+            headerColor = PanelHeaderStone
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (message != null) {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colorScheme.onSurface
+                    )
+                }
+
+                OutlinedTextField(
+                    value = field,
+                    onValueChange = { if (it.text.length <= maxLength) field = it },
+                    label = { Text("Village name") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = { if (canConfirm) onConfirm(field.text) }
+                    ),
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = colorScheme.surfaceContainerLow,
+                        unfocusedContainerColor = colorScheme.surfaceContainerLow,
+                        focusedBorderColor = colorScheme.primary,
+                        unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f),
+                        focusedLabelColor = colorScheme.primary,
+                        unfocusedLabelColor = colorScheme.onSurfaceVariant,
+                        cursorColor = colorScheme.primary
+                    )
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ClashBevelButton(
+                        text = dismissText,
+                        onClick = onDismiss,
+                        style = ClashButtonStyle.NEUTRAL
+                    )
+                    ClashBevelButton(
+                        text = confirmText,
+                        onClick = { onConfirm(field.text) },
+                        enabled = canConfirm,
                         style = ClashButtonStyle.GREEN
                     )
                 }
