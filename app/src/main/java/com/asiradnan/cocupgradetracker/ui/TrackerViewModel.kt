@@ -68,6 +68,24 @@ class TrackerViewModel(
         }
     }
 
+    fun reorderVillages(newOrder: List<VillageData>) {
+        if (newOrder.isEmpty()) return
+        val currentTag = _uiState.value.currentVillage?.tag
+        val newIndex = if (currentTag != null) {
+            val idx = newOrder.indexOfFirst { it.tag == currentTag }
+            if (idx >= 0) idx else 0
+        } else {
+            0
+        }
+        repository.saveVillages(newOrder, newIndex)
+        _uiState.update {
+            it.copy(
+                villages = newOrder,
+                currentIndex = newIndex
+            )
+        }
+    }
+
     fun onPageSettled(resolvedIndex: Int) {
         val state = _uiState.value
         if (resolvedIndex in state.villages.indices && resolvedIndex != state.currentIndex) {

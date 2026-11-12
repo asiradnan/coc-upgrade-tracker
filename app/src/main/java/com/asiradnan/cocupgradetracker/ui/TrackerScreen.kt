@@ -239,7 +239,8 @@ fun TrackerScreen() {
                         nowEpochSeconds = nowSec
                     )
                     showOutcomeToast(outcome)
-                }
+                },
+                onReorderVillages = { newOrder -> viewModel.reorderVillages(newOrder) }
             )
         } else {
             BackHandler(enabled = true) {

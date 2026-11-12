@@ -507,6 +507,7 @@ fun ClashBevelCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
+    enabled: Boolean = true,
     backgroundColor: Color = Color(0xFFFAF8F5),
     bottomLipColor: Color = Color(0xFFC7C3B7),
     borderColor: Color = ClashInkOutline,
@@ -517,8 +518,9 @@ fun ClashBevelCard(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val topOffset = if (isPressed) 2.dp else 0.dp
-    val bottomLipPadding = if (isPressed) 1.dp else 3.5.dp
+    val actualPressed = enabled && isPressed
+    val topOffset = if (actualPressed) 2.dp else 0.dp
+    val bottomLipPadding = if (actualPressed) 1.dp else 3.5.dp
 
     Box(
         modifier = modifier
@@ -529,10 +531,10 @@ fun ClashBevelCard(
                 val cornerPx = 12.dp.toPx()
                 val strokePx = 2.dp.toPx()
                 val halfStroke = strokePx / 2f
-                val lipPx = if (isPressed) 1.5.dp.toPx() else 3.5.dp.toPx()
+                val lipPx = if (actualPressed) 1.5.dp.toPx() else 3.5.dp.toPx()
 
                 // Soft outer drop shadow underneath
-                if (!isPressed) {
+                if (!actualPressed) {
                     drawRoundRect(
                         color = Color(0x22000000),
                         topLeft = Offset(0f, 2.dp.toPx()),
@@ -580,11 +582,17 @@ fun ClashBevelCard(
 
                 drawContent()
             }
-            .combinedClickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-                onLongClick = onLongClick
+            .then(
+                if (enabled) {
+                    Modifier.combinedClickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = onClick,
+                        onLongClick = onLongClick
+                    )
+                } else {
+                    Modifier
+                }
             )
             .padding(bottom = bottomLipPadding)
     ) {
