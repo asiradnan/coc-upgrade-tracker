@@ -194,13 +194,27 @@ data class VillageData(
     val starLabUpgrades: List<UpgradeItem>,
     val helpers: List<HelperStatus>,
     val boosts: ActiveBoosts = ActiveBoosts(),
+    val isLabMaxed: Boolean = false,
+    val isStarLabMaxed: Boolean = false,
     val rawJson: String
 ) {
     val totalHomeBuilders: Int
         get() = totalRegularBuilders + if (hasBobBuilder) 1 else 0
 
+    val hasTownHallLab: Boolean
+        get() = townHallLevel >= 3
+
+    val hasBuilderBase: Boolean
+        get() = townHallLevel >= 6
+
     val totalSlotCount: Int
-        get() = totalHomeBuilders + 1 + totalBuilderBaseBuilders + 1
+        get() {
+            val thLabSlots = if (hasTownHallLab && !isLabMaxed) 1 else 0
+            val bbBuilderSlots = if (hasBuilderBase) totalBuilderBaseBuilders else 0
+            val bbLabSlots = if (hasBuilderBase && !isStarLabMaxed) 1 else 0
+            return totalHomeBuilders + thLabSlots + bbBuilderSlots + bbLabSlots
+        }
+
     val effectiveBaseEpochSeconds: Long
         get() {
             val allTimers =
@@ -225,17 +239,21 @@ data class VillageData(
         val activeThLabCount = labUpgrades.count {
             !it.isGoblinHelper && it.remainingSeconds(baseEpoch, nowEpochSeconds) > 0L
         }
-        val freeThLab = if (activeThLabCount == 0) 1 else 0
+        val freeThLab = if (hasTownHallLab && !isLabMaxed && activeThLabCount == 0) 1 else 0
 
         val activeBbBuilderCount = builderBaseUpgrades.count {
             !it.isGoblinHelper && it.remainingSeconds(baseEpoch, nowEpochSeconds) > 0L
         }
-        val freeBbBuilders = max(0, totalBuilderBaseBuilders - activeBbBuilderCount)
+        val freeBbBuilders = if (hasBuilderBase) {
+            max(0, totalBuilderBaseBuilders - activeBbBuilderCount)
+        } else {
+            0
+        }
 
         val activeBbLabCount = starLabUpgrades.count {
             !it.isGoblinHelper && it.remainingSeconds(baseEpoch, nowEpochSeconds) > 0L
         }
-        val freeBbLab = if (activeBbLabCount == 0) 1 else 0
+        val freeBbLab = if (hasBuilderBase && !isStarLabMaxed && activeBbLabCount == 0) 1 else 0
 
         return freeThBuilders + freeThLab + freeBbBuilders + freeBbLab
     }
@@ -258,9 +276,15 @@ data class VillageData(
         }
 
         collectPoolFreeEpochs(totalHomeBuilders, builderUpgrades)
-        collectPoolFreeEpochs(1, labUpgrades)
-        collectPoolFreeEpochs(totalBuilderBaseBuilders, builderBaseUpgrades)
-        collectPoolFreeEpochs(1, starLabUpgrades)
+        if (hasTownHallLab && !isLabMaxed) {
+            collectPoolFreeEpochs(1, labUpgrades)
+        }
+        if (hasBuilderBase) {
+            collectPoolFreeEpochs(totalBuilderBaseBuilders, builderBaseUpgrades)
+            if (!isStarLabMaxed) {
+                collectPoolFreeEpochs(1, starLabUpgrades)
+            }
+        }
 
         val earliestFreed = freedEpochs.minOrNull() ?: return null
         return max(0L, nowEpochSeconds - earliestFreed)
@@ -277,17 +301,21 @@ data class VillageData(
         val activeThLabCount = labUpgrades.count {
             !it.isGoblinHelper && it.remainingSeconds(baseEpoch, nowEpochSeconds) > 0L
         }
-        val isThLabFree = activeThLabCount == 0
+        val isThLabFree = hasTownHallLab && !isLabMaxed && activeThLabCount == 0
 
         val activeBbBuilderCount = builderBaseUpgrades.count {
             !it.isGoblinHelper && it.remainingSeconds(baseEpoch, nowEpochSeconds) > 0L
         }
-        val freeBbBuilders = max(0, totalBuilderBaseBuilders - activeBbBuilderCount)
+        val freeBbBuilders = if (hasBuilderBase) {
+            max(0, totalBuilderBaseBuilders - activeBbBuilderCount)
+        } else {
+            0
+        }
 
         val activeBbLabCount = starLabUpgrades.count {
             !it.isGoblinHelper && it.remainingSeconds(baseEpoch, nowEpochSeconds) > 0L
         }
-        val isBbLabFree = activeBbLabCount == 0
+        val isBbLabFree = hasBuilderBase && !isStarLabMaxed && activeBbLabCount == 0
 
         return buildList {
             if (freeThBuilders > 0) {

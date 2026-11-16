@@ -214,6 +214,109 @@ object CocDataCatalog {
         93000002 to "Alchemist"
     )
 
+    private val builderBaseUnitIds = setOf(
+        4000031, 4000032, 4000033, 4000034, 4000035, 4000036,
+        4000037, 4000038, 4000041, 4000042, 4000070, 4000106
+    )
+
+    /**
+     * Required Home Village Laboratory level for each unit/spell/siege level (index 0 = Lv 1, index 1 = Lv 2, ...).
+     * Level 1 is unlocked via Barracks / Spell Factory / Workshop (Lab level 0).
+     */
+    private val homeLabRequiredLevels: Map<Int, IntArray> = mapOf(
+        // Elixir Troops
+        4000000 to intArrayOf(0, 1, 3, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16), // Barbarian
+        4000001 to intArrayOf(0, 1, 3, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16), // Archer
+        4000002 to intArrayOf(0, 1, 3, 5, 6, 7, 8, 10, 13, 15, 16),            // Goblin
+        4000003 to intArrayOf(0, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16), // Giant
+        4000004 to intArrayOf(0, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16),// Wall Breaker
+        4000005 to intArrayOf(0, 2, 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16),    // Balloon
+        4000006 to intArrayOf(0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16), // Wizard
+        4000007 to intArrayOf(0, 5, 6, 7, 9, 11, 12, 13, 14, 15, 16),          // Healer
+        4000008 to intArrayOf(0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),   // Dragon
+        4000009 to intArrayOf(0, 6, 6, 7, 8, 8, 9, 10, 11, 13, 14, 15, 16),    // P.E.K.K.A
+        4000023 to intArrayOf(0, 7, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16),      // Baby Dragon
+        4000024 to intArrayOf(0, 8, 8, 9, 9, 10, 11, 12, 13, 14, 15, 16),      // Miner
+        4000053 to intArrayOf(0, 10, 11, 12, 13, 14, 15, 16),                  // Yeti
+        4000059 to intArrayOf(0, 9, 10, 11, 12, 13, 14, 15, 16),               // Electro Dragon
+        4000065 to intArrayOf(0, 11, 12, 14, 15, 16),                          // Dragon Rider
+        4000095 to intArrayOf(0, 12, 13, 14, 16),                              // Electro Titan
+        4000110 to intArrayOf(0, 13, 14, 16),                                  // Root Rider
+        4000132 to intArrayOf(0, 14, 15, 16),                                  // Thrower
+
+        // Dark Elixir Troops
+        4000010 to intArrayOf(0, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12, 13, 14, 15, 16), // Minion
+        4000011 to intArrayOf(0, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12, 13, 14, 15, 16), // Hog Rider
+        4000012 to intArrayOf(0, 6, 7, 7, 8, 9, 10, 11, 12, 13, 14, 16),            // Valkyrie
+        4000013 to intArrayOf(0, 6, 7, 7, 8, 9, 9, 10, 10, 11, 12, 13, 14, 15, 16), // Golem
+        4000015 to intArrayOf(0, 7, 8, 9, 10, 13, 14, 16),                          // Witch
+        4000017 to intArrayOf(0, 7, 8, 9, 10, 11, 14, 16),                          // Lava Hound
+        4000022 to intArrayOf(0, 8, 9, 10, 11, 12, 13, 14, 15, 16),                 // Bowler
+        4000058 to intArrayOf(0, 9, 9, 10, 10, 12, 13, 14, 15),                     // Ice Golem
+        4000082 to intArrayOf(0, 10, 11, 15),                                       // Headhunter
+        4000097 to intArrayOf(0, 11, 12, 13),                                       // Apprentice Warden
+        4000123 to intArrayOf(0, 12, 13, 14, 15, 16),                               // Druid
+        4000150 to intArrayOf(0, 13, 14, 15),                                       // Furnace
+
+        // Spells
+        26000000 to intArrayOf(0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 15, 16),    // Lightning Spell
+        26000001 to intArrayOf(0, 2, 4, 5, 6, 7, 8, 11, 13, 14, 15, 16),       // Healing Spell
+        26000002 to intArrayOf(0, 3, 4, 5, 6, 10),                             // Rage Spell
+        26000003 to intArrayOf(0, 5, 8, 11, 13),                               // Jump Spell
+        26000005 to intArrayOf(0, 7, 8, 8, 8, 9, 10),                          // Freeze Spell
+        26000009 to intArrayOf(0, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),     // Poison Spell
+        26000010 to intArrayOf(0, 6, 7, 8, 9),                                 // Earthquake Spell
+        26000011 to intArrayOf(0, 7, 8, 8, 9, 15, 16),                         // Haste Spell
+        26000016 to intArrayOf(0, 8, 8, 9, 9, 11, 12, 13, 16),                 // Clone Spell
+        26000017 to intArrayOf(0, 8, 8, 9, 10, 10, 11, 13),                    // Skeleton Spell
+        26000028 to intArrayOf(0, 8, 8, 9, 10, 13, 15, 16),                    // Bat Spell
+        26000035 to intArrayOf(0, 9, 10, 11),                                  // Invisibility Spell
+        26000053 to intArrayOf(0, 11, 12, 13, 14, 15),                         // Recall Spell
+        26000070 to intArrayOf(0, 10, 12, 14),                                 // Overgrowth Spell
+        26000098 to intArrayOf(0, 13, 14, 15),                                 // Revive Spell
+
+        // Siege Machines
+        4000051 to intArrayOf(0, 10, 10, 11, 13, 16),                          // Wall Wrecker
+        4000052 to intArrayOf(0, 10, 10, 11, 15, 16),                          // Battle Blimp
+        4000062 to intArrayOf(0, 10, 10, 11, 13, 16),                          // Stone Slammer
+        4000075 to intArrayOf(0, 10, 10, 11, 14, 16),                          // Siege Barracks
+        4000087 to intArrayOf(0, 10, 10, 11, 14, 16),                          // Log Launcher
+        4000091 to intArrayOf(0, 10, 10, 11, 14),                              // Flame Flinger
+        4000092 to intArrayOf(0, 13, 13, 13, 15, 16),                          // Battle Drill
+        4000135 to intArrayOf(0, 14, 14, 15)                                   // Troop Launcher
+    )
+
+    fun getMaxLabBuildingLevelForTownHall(townHallLevel: Int): Int =
+        if (townHallLevel < 3) 0 else (townHallLevel - 2).coerceIn(1, 16)
+
+    fun getMaxStarLabBuildingLevelForBuilderHall(builderHallLevel: Int?): Int =
+        if (builderHallLevel == null || builderHallLevel < 1) 0 else builderHallLevel.coerceIn(1, 10)
+
+    /**
+     * Returns the maximum researchable level for a Home Village troop, spell, or siege machine
+     * at the given [labLevel], or null if the item ID is unknown or [labLevel] <= 0.
+     */
+    fun getMaxHomeLabResearchLevel(dataId: Int, labLevel: Int): Int? {
+        if (labLevel <= 0) return null
+        val reqLevels = homeLabRequiredLevels[dataId] ?: return null
+        var maxLvl = 1
+        for (i in reqLevels.indices) {
+            if (reqLevels[i] <= labLevel) {
+                maxLvl = i + 1
+            }
+        }
+        return maxLvl
+    }
+
+    /**
+     * Returns the maximum researchable level for a Builder Base troop at the given [starLabLevel],
+     * or null if the item ID is not a known Builder Base troop or [starLabLevel] <= 0.
+     */
+    fun getMaxStarLabResearchLevel(dataId: Int, starLabLevel: Int): Int? {
+        if (starLabLevel <= 0 || dataId !in builderBaseUnitIds) return null
+        return starLabLevel.coerceIn(1, 10) * 2
+    }
+
     fun getBuildingName(dataId: Int): String =
         buildingNames[dataId] ?: "Building (#$dataId)"
 

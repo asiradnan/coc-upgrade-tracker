@@ -40,6 +40,7 @@ import com.asiradnan.cocupgradetracker.ui.components.ClashOutlinedText
 import com.asiradnan.cocupgradetracker.ui.components.ClashPanelCard
 import com.asiradnan.cocupgradetracker.ui.components.ClashUpgradeCapsuleBar
 import com.asiradnan.cocupgradetracker.ui.theme.ClashGold
+import com.asiradnan.cocupgradetracker.ui.theme.ClashGoldBright
 import com.asiradnan.cocupgradetracker.ui.theme.ClashGreenBright
 import com.asiradnan.cocupgradetracker.ui.theme.ClashRed
 import com.asiradnan.cocupgradetracker.ui.theme.PanelHeaderBuilderBase
@@ -109,7 +110,8 @@ fun VillageDetailScreen(
             baseEpochSeconds = baseEpoch,
             pastedAtEpochSeconds = village.pastedAtEpochSeconds,
             nowEpochSeconds = nowEpochSeconds,
-            showLab = village.townHallLevel >= 3
+            showLab = village.townHallLevel >= 3,
+            isLabMaxed = village.isLabMaxed
         )
 
         Spacer(modifier = Modifier.height(14.dp))
@@ -131,7 +133,8 @@ fun VillageDetailScreen(
                 labUpgrades = village.starLabUpgrades,
                 baseEpochSeconds = baseEpoch,
                 pastedAtEpochSeconds = village.pastedAtEpochSeconds,
-                nowEpochSeconds = nowEpochSeconds
+                nowEpochSeconds = nowEpochSeconds,
+                isLabMaxed = village.isStarLabMaxed
             )
             Spacer(modifier = Modifier.height(14.dp))
             ClashEtchedDivider()
@@ -436,7 +439,8 @@ private fun BaseSectionCard(
     baseEpochSeconds: Long,
     pastedAtEpochSeconds: Long,
     nowEpochSeconds: Long,
-    showLab: Boolean = true
+    showLab: Boolean = true,
+    isLabMaxed: Boolean = false
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val regularBuilders = builderUpgrades.filter { !it.isGoblinHelper }
@@ -506,7 +510,8 @@ private fun BaseSectionCard(
                     pastedAtEpochSeconds = pastedAtEpochSeconds,
                     nowEpochSeconds = nowEpochSeconds,
                     referenceMaxSeconds = sectionMaxDuration,
-                    fillStyle = ClashCapsuleFillStyle.ELIXIR
+                    fillStyle = ClashCapsuleFillStyle.ELIXIR,
+                    isMaxed = isLabMaxed
                 )
 
                 goblinLabs.forEach { goblinLab ->
@@ -534,7 +539,8 @@ private fun UpgradeSlotRow(
     pastedAtEpochSeconds: Long,
     nowEpochSeconds: Long,
     referenceMaxSeconds: Long,
-    fillStyle: ClashCapsuleFillStyle = ClashCapsuleFillStyle.GREEN
+    fillStyle: ClashCapsuleFillStyle = ClashCapsuleFillStyle.GREEN,
+    isMaxed: Boolean = false
 ) {
     val remaining = upgrade?.remainingSeconds(baseEpochSeconds, nowEpochSeconds) ?: 0L
 
@@ -551,6 +557,21 @@ private fun UpgradeSlotRow(
             isActive = true,
             showStopwatch = true,
             fillStyle = fillStyle
+        )
+    } else if (isMaxed) {
+        val titleText = if (upgrade != null) {
+            "${upgrade.name} (Done)"
+        } else {
+            slotLabel
+        }
+        ClashUpgradeCapsuleBar(
+            titleText = titleText,
+            rightText = "Maxed",
+            progress = 0f,
+            isActive = false,
+            showStopwatch = false,
+            titleColor = Color(0xFFE0D3C3),
+            rightTextColor = ClashGoldBright
         )
     } else {
         val titleText = if (upgrade != null) {

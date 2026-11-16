@@ -99,6 +99,7 @@ object CocVillageParser {
         var townHallLevel = 1
         var builderHutCount = 0
         var hasBob = false
+        var labBuildingLevel: Int? = null
 
         if (buildingsArray != null) {
             for (obj in buildingsArray) {
@@ -107,6 +108,7 @@ object CocVillageParser {
                 val cnt = max(1, obj.optInt("cnt", 1))
                 when (dataId) {
                     1000001 -> townHallLevel = max(townHallLevel, lvl)
+                    1000007 -> labBuildingLevel = max(labBuildingLevel ?: 0, lvl)
                     1000015 -> builderHutCount += cnt
                     1000064 -> if (cnt > 0) hasBob = true
                 }
@@ -115,11 +117,14 @@ object CocVillageParser {
 
         var builderHallLevel: Int? = null
         var hasOttoBuilder = false
+        var starLabBuildingLevel: Int? = null
         if (buildings2Array != null) {
             for (obj in buildings2Array) {
                 val dataId = obj.optInt("data", -1)
                 if (dataId == 1000034) {
                     builderHallLevel = max(builderHallLevel ?: 1, obj.optInt("lvl", 1))
+                } else if (dataId == 1000046) {
+                    starLabBuildingLevel = max(starLabBuildingLevel ?: 0, obj.optInt("lvl", 1))
                 } else if (dataId == 1000078 || dataId == 1000065) {
                     if (obj.optInt("cnt", 1) > 0) hasOttoBuilder = true
                 }
@@ -284,6 +289,20 @@ object CocVillageParser {
             builderBaseUpgrades.count { !it.isGoblinHelper }.coerceAtMost(2)
         )
 
+        val effectiveLabLevel =
+            labBuildingLevel ?: CocDataCatalog.getMaxLabBuildingLevelForTownHall(townHallLevel)
+        val effectiveStarLabLevel =
+            starLabBuildingLevel ?: CocDataCatalog.getMaxStarLabBuildingLevelForBuilderHall(builderHallLevel)
+
+        val isLabMaxed = computeHomeLabMaxed(
+            effectiveLabLevel = effectiveLabLevel,
+            researchArrays = listOf(unitsArray, spellsArray, siegeArray)
+        )
+        val isStarLabMaxed = computeStarLabMaxed(
+            effectiveStarLabLevel = effectiveStarLabLevel,
+            units2Array = units2Array
+        )
+
         return ParseResult.Success(
             village = VillageData(
                 username = resolvedUsername,
@@ -303,9 +322,56 @@ object CocVillageParser {
                 starLabUpgrades = starLabUpgrades,
                 helpers = helpers,
                 boosts = activeBoosts,
+                isLabMaxed = isLabMaxed,
+                isStarLabMaxed = isStarLabMaxed,
                 rawJson = cleanJson
             )
         )
+    }
+
+    private fun computeHomeLabMaxed(
+        effectiveLabLevel: Int,
+        researchArrays: List<List<JsonMap>?>
+    ): Boolean {
+        if (effectiveLabLevel <= 0) return false
+        var knownCount = 0
+        var nonUpgradingKnownCount = 0
+        for (array in researchArrays) {
+            if (array == null) continue
+            for (obj in array) {
+                val dataId = obj.optInt("data", -1)
+                val maxLvl = CocDataCatalog.getMaxHomeLabResearchLevel(dataId, effectiveLabLevel)
+                    ?: continue
+                val currentLvl = obj.optInt("lvl", 0)
+                val timer = obj.optLong("timer", 0L)
+                val levelAfterTimer = if (timer > 0L) currentLvl + 1 else currentLvl
+                knownCount++
+                if (timer <= 0L) nonUpgradingKnownCount++
+                if (levelAfterTimer < maxLvl) return false
+            }
+        }
+        return knownCount > 0 && nonUpgradingKnownCount > 0
+    }
+
+    private fun computeStarLabMaxed(
+        effectiveStarLabLevel: Int,
+        units2Array: List<JsonMap>?
+    ): Boolean {
+        if (effectiveStarLabLevel <= 0 || units2Array == null) return false
+        var knownCount = 0
+        var nonUpgradingKnownCount = 0
+        for (obj in units2Array) {
+            val dataId = obj.optInt("data", -1)
+            val maxLvl = CocDataCatalog.getMaxStarLabResearchLevel(dataId, effectiveStarLabLevel)
+                ?: continue
+            val currentLvl = obj.optInt("lvl", 0)
+            val timer = obj.optLong("timer", 0L)
+            val levelAfterTimer = if (timer > 0L) currentLvl + 1 else currentLvl
+            knownCount++
+            if (timer <= 0L) nonUpgradingKnownCount++
+            if (levelAfterTimer < maxLvl) return false
+        }
+        return knownCount > 0 && nonUpgradingKnownCount > 0
     }
 
     private fun extractUpgrades(
