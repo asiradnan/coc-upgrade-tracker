@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,8 +37,7 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopAppBar(
-    villageCount: Int,
-    onAddVillageClick: () -> Unit
+    onAboutClick: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -60,12 +60,12 @@ fun HomeTopAppBar(
                 )
             },
             actions = {
-                ClashBevelButton(
-                    text = "Add village",
-                    leadingIcon = Icons.Default.Add,
-                    onClick = onAddVillageClick,
-                    style = ClashButtonStyle.BLUE,
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 7.dp),
+                ClashBevelIconButton(
+                    icon = Icons.Default.Info,
+                    contentDescription = "About",
+                    onClick = onAboutClick,
+                    style = ClashButtonStyle.NEUTRAL,
+                    buttonSize = 38.dp,
                     modifier = Modifier.padding(end = 12.dp)
                 )
             }

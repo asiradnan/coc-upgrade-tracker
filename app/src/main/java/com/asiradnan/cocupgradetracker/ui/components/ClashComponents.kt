@@ -758,10 +758,10 @@ fun ClashCrestBadge(
 }
 
 /**
- * Maps a Town Hall level (1..16) to its bundled drawable resource from coc_assets/townhalls.
+ * Maps a Town Hall level (1..19) to its bundled drawable resource from coc_assets/townhalls.
  */
 fun getTownHallDrawableRes(townHallLevel: Int): Int {
-    return when (townHallLevel.coerceIn(1, 16)) {
+    return when (townHallLevel.coerceIn(1, 19)) {
         1 -> R.drawable.th_1
         2 -> R.drawable.th_2
         3 -> R.drawable.th_3
@@ -778,6 +778,9 @@ fun getTownHallDrawableRes(townHallLevel: Int): Int {
         14 -> R.drawable.th_14
         15 -> R.drawable.th_15
         16 -> R.drawable.th_16
+        17 -> R.drawable.th_17
+        18 -> R.drawable.th_18
+        19 -> R.drawable.th_19
         else -> R.drawable.th_1
     }
 }

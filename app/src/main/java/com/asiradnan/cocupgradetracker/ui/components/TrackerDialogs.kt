@@ -2,6 +2,8 @@ package com.asiradnan.cocupgradetracker.ui.components
 
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,11 +41,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -517,6 +523,158 @@ fun VillageNameDialog(
                         onClick = { onConfirm(field.text) },
                         enabled = canConfirm,
                         style = ClashButtonStyle.GREEN
+                    )
+                }
+            }
+        }
+    }
+}
+
+private const val SUPERCELL_FAN_POLICY_URL = "https://www.supercell.com/fan-content-policy"
+private const val DEVELOPER_WEBSITE_URL = "https://asiradnan.com"
+
+@Composable
+fun AboutDialog(
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val colorScheme = MaterialTheme.colorScheme
+    val versionName = remember(context) {
+        try {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "2.1"
+        } catch (_: Exception) {
+            "2.1"
+        }
+    }
+
+    fun openUrl(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            context.startActivity(intent)
+        } catch (_: Exception) {
+            // No browser installed
+        }
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        ClashPanelCard(
+            modifier = Modifier.fillMaxWidth(0.9f),
+            headerTitle = "About",
+            headerColor = PanelHeaderStone
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = "COC Upgrade Tracker",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Black,
+                            fontSize = 17.sp
+                        ),
+                        color = Color(0xFF261D15)
+                    )
+                    Text(
+                        text = "Version $versionName",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color(0xFF5A5147)
+                    )
+                }
+
+                ClashEtchedDivider()
+
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = colorScheme.surfaceVariant,
+                    border = BorderStroke(1.dp, colorScheme.outlineVariant),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable { openUrl(DEVELOPER_WEBSITE_URL) }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = "DEVELOPER",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                letterSpacing = 0.6.sp
+                            ),
+                            color = Color(0xFF5A5147)
+                        )
+                        Text(
+                            text = "Asir Adnan",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Black,
+                                fontSize = 15.5.sp
+                            ),
+                            color = Color(0xFF2682DE)
+                        )
+                    }
+                }
+
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = colorScheme.surfaceContainerLow,
+                    border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.45f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable { openUrl(SUPERCELL_FAN_POLICY_URL) }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "DISCLAIMER",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                letterSpacing = 0.6.sp
+                            ),
+                            color = Color(0xFF5A5147)
+                        )
+                        val disclaimerText = buildAnnotatedString {
+                            append("This material is unofficial and is not endorsed by Supercell. For more information see Supercell's Fan Content Policy: ")
+                            withStyle(
+                                SpanStyle(
+                                    color = Color(0xFF2682DE),
+                                    fontWeight = FontWeight.ExtraBold,
+                                    textDecoration = TextDecoration.Underline
+                                )
+                            ) {
+                                append("www.supercell.com/fan-content-policy")
+                            }
+                            append(".")
+                        }
+                        Text(
+                            text = disclaimerText,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                lineHeight = 16.sp
+                            ),
+                            color = Color(0xFF362F28)
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 2.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ClashBevelButton(
+                        text = "Close",
+                        onClick = onDismiss,
+                        style = ClashButtonStyle.BLUE
                     )
                 }
             }

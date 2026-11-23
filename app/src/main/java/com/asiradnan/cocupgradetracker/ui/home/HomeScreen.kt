@@ -232,7 +232,7 @@ fun HomeScreen(
                         start = 16.dp,
                         end = 16.dp,
                         top = 10.dp,
-                        bottom = 88.dp
+                        bottom = 148.dp
                     )
             ) {
                 ClashPanelCard(
@@ -274,7 +274,7 @@ fun HomeScreen(
                         start = 16.dp,
                         end = 16.dp,
                         top = 10.dp,
-                        bottom = 88.dp
+                        bottom = 148.dp
                     )
             ) {
                 // Header with Villages title and Organize / Done toggle button

@@ -12,6 +12,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.asiradnan.cocupgradetracker.notifications.UpgradeNotificationScheduler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -32,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -39,6 +42,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
 import com.asiradnan.cocupgradetracker.data.repository.VillageRepository
+import com.asiradnan.cocupgradetracker.ui.components.AboutDialog
 import com.asiradnan.cocupgradetracker.ui.components.AddVillageDialog
 import com.asiradnan.cocupgradetracker.ui.components.ClashBevelButton
 import com.asiradnan.cocupgradetracker.ui.components.ClashButtonStyle
@@ -199,6 +203,7 @@ fun TrackerScreen() {
 
     val showingHome = isHomePage || villages.isEmpty()
     val colorScheme = MaterialTheme.colorScheme
+    var showAboutDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -206,8 +211,7 @@ fun TrackerScreen() {
         topBar = {
             if (showingHome) {
                 HomeTopAppBar(
-                    villageCount = villages.size,
-                    onAddVillageClick = { viewModel.setShowAddVillageDialog(true) }
+                    onAboutClick = { showAboutDialog = true }
                 )
             } else {
                 VillageDetailTopAppBar(
@@ -240,19 +244,31 @@ fun TrackerScreen() {
         },
         floatingActionButton = {
             if (showingHome) {
-                ClashBevelButton(
-                    text = "Paste Update",
-                    onClick = {
-                        val nowSec = System.currentTimeMillis() / 1000L
-                        val outcome = viewModel.pasteUpdateIntelligent(
-                            clipText = readClipboardText(),
-                            nowEpochSeconds = nowSec
-                        )
-                        showOutcomeToast(outcome)
-                    },
-                    style = ClashButtonStyle.GREEN,
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
-                )
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    ClashBevelButton(
+                        text = "Add village",
+                        leadingIcon = Icons.Default.Add,
+                        onClick = { viewModel.setShowAddVillageDialog(true) },
+                        style = ClashButtonStyle.BLUE,
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
+                    )
+                    ClashBevelButton(
+                        text = "Paste Update",
+                        onClick = {
+                            val nowSec = System.currentTimeMillis() / 1000L
+                            val outcome = viewModel.pasteUpdateIntelligent(
+                                clipText = readClipboardText(),
+                                nowEpochSeconds = nowSec
+                            )
+                            showOutcomeToast(outcome)
+                        },
+                        style = ClashButtonStyle.GREEN,
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -371,6 +387,12 @@ fun TrackerScreen() {
                     Toast.makeText(context, "Deleted $removedName", Toast.LENGTH_SHORT).show()
                 }
             }
+        )
+    }
+
+    if (showAboutDialog) {
+        AboutDialog(
+            onDismiss = { showAboutDialog = false }
         )
     }
 }
