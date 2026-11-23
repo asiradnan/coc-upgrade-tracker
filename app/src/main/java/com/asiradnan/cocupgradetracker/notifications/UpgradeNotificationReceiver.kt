@@ -1,5 +1,6 @@
 package com.asiradnan.cocupgradetracker.notifications
 
+import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -45,6 +46,7 @@ class UpgradeNotificationReceiver : BroadcastReceiver() {
                 TrackerWidgetProvider.updateAllWidgets(context.applicationContext)
             }
 
+            AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED,
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED -> {
                 // Reloading villages automatically re-syncs all pending upgrade alarms

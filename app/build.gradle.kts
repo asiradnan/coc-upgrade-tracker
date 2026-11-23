@@ -13,8 +13,8 @@ android {
         applicationId = "com.asiradnan.cocupgradetracker"
         minSdk = 29
         targetSdk = 37
-        versionCode = 5
-        versionName = "1.3"
+        versionCode = 7
+        versionName = "2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
