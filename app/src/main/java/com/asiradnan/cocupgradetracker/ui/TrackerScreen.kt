@@ -1,10 +1,17 @@
 package com.asiradnan.cocupgradetracker.ui
 
+import android.Manifest
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.asiradnan.cocupgradetracker.notifications.UpgradeNotificationScheduler
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -98,10 +105,35 @@ fun TrackerScreen() {
     val activity = context as? ComponentActivity
     val lifecycle = activity?.lifecycle
 
-    // Auto-detect CoC export JSON in clipboard and auto-paste when app opens or returns from Clash of Clans
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { /* Scheduled alarms will post notifications once granted */ }
+    )
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!hasPermission) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+    // Auto-detect CoC export JSON in clipboard and handle notification deep-link on resume
     DisposableEffect(lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
+                val targetTag = activity?.intent?.getStringExtra(
+                    UpgradeNotificationScheduler.EXTRA_VILLAGE_TAG
+                )
+                if (!targetTag.isNullOrBlank()) {
+                    activity.intent?.removeExtra(UpgradeNotificationScheduler.EXTRA_VILLAGE_TAG)
+                    viewModel.selectVillageByTag(targetTag)
+                }
+
                 val clip = readClipboardText()
                 val nowSec = System.currentTimeMillis() / 1000L
                 val outcome = viewModel.autoPasteClipboardIfNew(clip, nowSec)

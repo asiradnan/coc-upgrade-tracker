@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">COC Upgrade Tracker</string>
+    <string name="widget_description">Shows the next free builder or laboratory time for your selected Clash of Clans village.</string>
 </resources>

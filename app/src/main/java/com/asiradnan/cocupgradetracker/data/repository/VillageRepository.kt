@@ -4,6 +4,8 @@ import android.content.Context
 import com.asiradnan.cocupgradetracker.data.CocVillageParser
 import com.asiradnan.cocupgradetracker.data.ParseResult
 import com.asiradnan.cocupgradetracker.data.VillageData
+import com.asiradnan.cocupgradetracker.notifications.UpgradeNotificationScheduler
+import com.asiradnan.cocupgradetracker.widget.TrackerWidgetProvider
 
 data class StoredVillagesSnapshot(
     val villages: List<VillageData>,
@@ -12,9 +14,10 @@ data class StoredVillagesSnapshot(
 
 class VillageRepository(context: Context) {
 
-    private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
+    private val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    fun loadVillages(): StoredVillagesSnapshot {
+    fun loadVillages(syncExternal: Boolean = true): StoredVillagesSnapshot {
         val count = prefs.getInt(KEY_VILLAGE_COUNT, 0)
         val alreadyInitialized = prefs.getBoolean(KEY_SAMPLES_INITIALIZED, false)
         val loaded = mutableListOf<VillageData>()
@@ -56,6 +59,11 @@ class VillageRepository(context: Context) {
         val selectedIdx = prefs.getInt(KEY_SELECTED_INDEX, 0)
             .coerceIn(0, (loaded.size - 1).coerceAtLeast(0))
 
+        if (syncExternal) {
+            UpgradeNotificationScheduler.syncVillages(appContext, loaded)
+            TrackerWidgetProvider.updateAllWidgets(appContext)
+        }
+
         return StoredVillagesSnapshot(
             villages = loaded,
             selectedIndex = selectedIdx
@@ -73,6 +81,8 @@ class VillageRepository(context: Context) {
             editor.putLong("v_${idx}_paste", v.pastedAtEpochSeconds)
         }
         editor.apply()
+        UpgradeNotificationScheduler.syncVillages(appContext, list)
+        TrackerWidgetProvider.updateAllWidgets(appContext)
     }
 
     companion object {

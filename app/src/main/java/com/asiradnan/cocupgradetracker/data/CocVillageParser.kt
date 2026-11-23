@@ -47,7 +47,7 @@ object CocVillageParser {
 
         val knownKeys = listOf(
             "buildings", "traps", "heroes", "units", "spells",
-            "siege_machines", "pets", "buildings2", "traps2", "heroes2", "units2"
+            "siege_machines", "pets", "squads", "buildings2", "traps2", "heroes2", "units2"
         )
         if (knownKeys.none { root.has(it) }) {
             return ParseResult.Error(
@@ -88,6 +88,7 @@ object CocVillageParser {
         val unitsArray = root.optArray("units")
         val spellsArray = root.optArray("spells")
         val siegeArray = root.optArray("siege_machines")
+        val squadsArray = root.optArray("squads")
         val petsArray = root.optArray("pets")
         val helpersArray = root.optArray("helpers")
 
@@ -182,6 +183,14 @@ object CocVillageParser {
             nameProvider = { CocDataCatalog.getUnitName(it) },
             targetList = labUpgrades,
             prefix = "siege",
+            boosts = activeBoosts
+        )
+        extractUpgrades(
+            array = squadsArray,
+            categoryProvider = { UpgradeCategory.TROOP },
+            nameProvider = { CocDataCatalog.getUnitName(it) },
+            targetList = labUpgrades,
+            prefix = "squad",
             boosts = activeBoosts
         )
 
@@ -451,7 +460,8 @@ object CocVillageParser {
   "units": [
     { "data": 4000110, "lvl": 2, "timer": 61500 },
     { "data": 4000000, "lvl": 12 },
-    { "data": 4000001, "lvl": 12 }
+    { "data": 4000001, "lvl": 12 },
+    { "data": 4000008, "lvl": 10 }
   ],
   "spells": [
     { "data": 26000070, "lvl": 3, "timer": 184200, "extra": true }

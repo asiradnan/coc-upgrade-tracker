@@ -57,6 +57,11 @@ object CocDataCatalog {
         1000086 to "Revenge Tower",
         1000089 to "Firespitter",
         1000093 to "Helper Hut",
+        1000097 to "Crafting Station",
+        1000102 to "Super Wizard Tower",
+        1000106 to "Squad Barracks",
+        1000107 to "Spiky Tower",
+        1000108 to "Firecracker Tower",
         // Builder Base Buildings
         1000033 to "Wall (BB)",
         1000034 to "Builder Hall",
@@ -165,15 +170,31 @@ object CocDataCatalog {
         4000095 to "Electro Titan",
         4000097 to "Apprentice Warden",
         4000106 to "Electrofire Wizard",
+        4000109 to "Ruin Witch",
         4000110 to "Root Rider",
         4000123 to "Druid",
         4000132 to "Thrower",
         4000135 to "Troop Launcher",
-        4000150 to "Furnace"
+        4000150 to "Furnace",
+        4000177 to "Meteor Golem",
+        4000188 to "Sky Wagon",
+        // Squads (Squad Barracks)
+        4000195 to "Barch Squad",
+        4000196 to "Giant Wizard Squad",
+        4000197 to "Wall Breaker Squad",
+        4000198 to "Minion Squad",
+        4000199 to "Balloon Squad",
+        4000200 to "Golem Witch Squad",
+        4000201 to "Hog Rider Squad",
+        4000202 to "Miner Squad",
+        4000203 to "Healer Squad",
+        4000204 to "P.E.K.K.A Titan Squad",
+        4000205 to "Dragons Squad",
+        4000206 to "Baby Dragon Squad"
     )
 
     private val siegeMachineIds = setOf(
-        4000051, 4000052, 4000062, 4000075, 4000087, 4000091, 4000092, 4000135
+        4000051, 4000052, 4000062, 4000075, 4000087, 4000091, 4000092, 4000135, 4000188
     )
 
     private val spellNames = mapOf(
@@ -191,7 +212,9 @@ object CocDataCatalog {
         26000035 to "Invisibility Spell",
         26000053 to "Recall Spell",
         26000070 to "Overgrowth Spell",
-        26000098 to "Revive Spell"
+        26000098 to "Revive Spell",
+        26000109 to "Ice Block Spell",
+        26000120 to "Totem Spell"
     )
 
     private val petNames = mapOf(
@@ -211,7 +234,8 @@ object CocDataCatalog {
     private val helperNames = mapOf(
         93000000 to "Builder's Apprentice",
         93000001 to "Lab Assistant",
-        93000002 to "Alchemist"
+        93000002 to "Alchemist",
+        93000003 to "Prospector"
     )
 
     private val builderBaseUnitIds = setOf(
@@ -243,6 +267,7 @@ object CocDataCatalog {
         4000095 to intArrayOf(0, 12, 13, 14, 16),                              // Electro Titan
         4000110 to intArrayOf(0, 13, 14, 16),                                  // Root Rider
         4000132 to intArrayOf(0, 14, 15, 16),                                  // Thrower
+        4000177 to intArrayOf(0, 15, 16, 16),                                  // Meteor Golem
 
         // Dark Elixir Troops
         4000010 to intArrayOf(0, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12, 13, 14, 15, 16), // Minion
@@ -255,6 +280,7 @@ object CocDataCatalog {
         4000058 to intArrayOf(0, 9, 9, 10, 10, 12, 13, 14, 15),                     // Ice Golem
         4000082 to intArrayOf(0, 10, 11, 15),                                       // Headhunter
         4000097 to intArrayOf(0, 11, 12, 13),                                       // Apprentice Warden
+        4000109 to intArrayOf(0, 15, 15, 16, 16),                                   // Ruin Witch
         4000123 to intArrayOf(0, 12, 13, 14, 15, 16),                               // Druid
         4000150 to intArrayOf(0, 13, 14, 15),                                       // Furnace
 
@@ -274,6 +300,8 @@ object CocDataCatalog {
         26000053 to intArrayOf(0, 11, 12, 13, 14, 15),                         // Recall Spell
         26000070 to intArrayOf(0, 10, 12, 14),                                 // Overgrowth Spell
         26000098 to intArrayOf(0, 13, 14, 15),                                 // Revive Spell
+        26000109 to intArrayOf(0, 14, 15, 16),                                 // Ice Block Spell
+        26000120 to intArrayOf(0, 15, 15, 16, 16),                             // Totem Spell
 
         // Siege Machines
         4000051 to intArrayOf(0, 10, 10, 11, 13, 16),                          // Wall Wrecker
@@ -281,13 +309,14 @@ object CocDataCatalog {
         4000062 to intArrayOf(0, 10, 10, 11, 13, 16),                          // Stone Slammer
         4000075 to intArrayOf(0, 10, 10, 11, 14, 16),                          // Siege Barracks
         4000087 to intArrayOf(0, 10, 10, 11, 14, 16),                          // Log Launcher
-        4000091 to intArrayOf(0, 10, 10, 11, 14),                              // Flame Flinger
+        4000091 to intArrayOf(0, 10, 10, 11, 14, 16),                          // Flame Flinger
         4000092 to intArrayOf(0, 13, 13, 13, 15, 16),                          // Battle Drill
-        4000135 to intArrayOf(0, 14, 14, 15)                                   // Troop Launcher
+        4000135 to intArrayOf(0, 14, 14, 15),                                  // Troop Launcher
+        4000188 to intArrayOf(0, 15, 15, 16)                                   // Sky Wagon
     )
 
     fun getMaxLabBuildingLevelForTownHall(townHallLevel: Int): Int =
-        if (townHallLevel < 3) 0 else (townHallLevel - 2).coerceIn(1, 16)
+        if (townHallLevel < 3) 0 else (townHallLevel - 2).coerceIn(1, 17)
 
     fun getMaxStarLabBuildingLevelForBuilderHall(builderHallLevel: Int?): Int =
         if (builderHallLevel == null || builderHallLevel < 1) 0 else builderHallLevel.coerceIn(1, 10)

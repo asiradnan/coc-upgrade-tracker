@@ -65,6 +65,14 @@ class TrackerViewModel(
         }
     }
 
+    fun selectVillageByTag(tag: String?) {
+        if (tag.isNullOrBlank()) return
+        val idx = _uiState.value.villages.indexOfFirst { it.tag.equals(tag, ignoreCase = true) }
+        if (idx >= 0) {
+            selectVillage(idx)
+        }
+    }
+
     fun navigateHome() {
         _uiState.update { it.copy(isHomePage = true) }
     }

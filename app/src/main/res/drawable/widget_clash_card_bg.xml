@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer dark ink outline + 3D bottom bevel lip -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#C7C3B7" />
+            <corners android:radius="14dp" />
+            <stroke
+                android:width="2dp"
+                android:color="#171512" />
+        </shape>
+    </item>
+    <!-- Main warm stone card face above bottom lip -->
+    <item
+        android:bottom="4dp"
+        android:left="2dp"
+        android:right="2dp"
+        android:top="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FAF8F5" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</layer-list>
